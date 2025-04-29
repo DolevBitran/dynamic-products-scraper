@@ -1,0 +1,87 @@
+#root {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  /* padding: 2rem; */
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+  display: flex;
+  justify-content: center;
+}
+
+.spacer {
+  width: 2rem;
+}
+
+.product_name {
+  text-overflow: ellipsis;
+  /* enables ellipsis */
+  white-space: nowrap;
+  /* keeps the text in a single line */
+  overflow: hidden;
+  /* keeps the element from overflowing its parent */
+  max-width: 12rem;
+}
+
+.results_list {
+  padding: 0;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.text-muted-foreground {
+  color: #677181;
+}
+
+.bg-muted {
+  background-color: #f1f6fa;
+}
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+  transition-duration: .15s;
+}
+
+button[data-state="active"] {
+  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / .05);
+  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--background));
+}
