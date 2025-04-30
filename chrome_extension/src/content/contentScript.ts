@@ -20,7 +20,7 @@ function scrapePage(fields: Field[]): void {
     if (productElements.length) {
       products = productElements.map(el => {
         const scrapedFields = fields.map(field => {
-          const fieldSelectors = field.selector.split(' ')
+          const fieldSelectors = field.selector.split(',')
           const fieldEl = findElement(fieldSelectors, el)
 
           if (fieldEl) {
