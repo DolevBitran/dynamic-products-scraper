@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios';
 import Header from './components/Header';
 import Table from './components/Table';
 import Tabs, { TabsContent, TabsList, TabsTrigger } from './components/Tabs';
 import FieldsManager from './components/FieldsManager';
 import './App.css'
 import Button from './components/Button';
+import API from './api/service';
 
 function App() {
   const [scrapedData, setScrapedData] = useState<Product[]>([]);
@@ -15,7 +15,7 @@ function App() {
   useEffect(() => {
     const fetchFields = async () => {
       try {
-        const { data }: { data: { fields: Field[] } } = await axios.get('http://localhost:3000/fields')
+        const { data }: { data: { fields: Field[] } } = await API.get('/fields')
         setFieldsData(data.fields)
       } catch (error) {
         console.error(error)

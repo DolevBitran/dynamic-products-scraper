@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import Button from "../Button";
 import Input from "../Input";
 import Label from "../Label";
-import axios from "axios";
+import API from "../../api/service";
 
 
 interface IFieldsManagerProps {
@@ -26,7 +26,7 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
         if (!newField.fieldName || !newField.selector) return;
 
         try {
-            const { data } = await axios.post('http://localhost:3000/fields', { fields: [newField] })
+            const { data } = await API.post('/fields', { fields: [newField] })
             setFieldsData(fields => ([...fields, { ...newField, _id: data.newId }]))
             setNewField({ fieldName: "", selector: "" });
         } catch (error) {
@@ -37,7 +37,7 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
     const onDeleteField = async (fieldId: string | undefined) => {
         if (!fieldId) return
         try {
-            await axios.delete('http://localhost:3000/fields', {
+            await API.delete('/fields', {
                 data: { fieldId },
             });
             setFieldsData(fields => fields.filter(field => field._id !== fieldId))
@@ -51,7 +51,7 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
 
         try {
             const editedFields = draftFieldsData.filter((f, i) => f.fieldName !== fieldsData[i].fieldName || f.selector !== fieldsData[i].selector)
-            await axios.post('http://localhost:3000/fields', { fields: editedFields })
+            await API.post('/fields', { fields: editedFields })
             setFieldsData(draftFieldsData)
         } catch (error) {
             console.error(error)
@@ -122,7 +122,6 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
         </div>
     </div>
 
-
     return (
         <div className="flex-1">
             <div className="p-3 bg-gray-50 text-start">
@@ -140,7 +139,6 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
                             onChange: (e) => setNewField(newField => ({ ...newField, fieldName: e.target.value })),
                             placeHolder: "e.g., Product Image"
                         })}
-
 
                         {inputRenderer({
                             htmlFor: "new-selector",

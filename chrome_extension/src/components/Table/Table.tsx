@@ -9,7 +9,7 @@ import {
     TableRow,
 } from "./TableContent";
 import Button from "../Button";
-import axios from "axios";
+import API from "../../api/service";
 
 interface IResultsTableProps {
     data: Product[];
@@ -96,7 +96,7 @@ const ResultsTable = ({ data }: IResultsTableProps) => {
 
     const onSaveResults = async () => {
         const selectedProducts = selectedRows.map((rowIndex) => filteredData[rowIndex]);
-        const res = await axios.post('http://localhost:3000/products', { products: selectedProducts })
+        const res = await API.post('/products', { products: selectedProducts })
         console.log(res)
     }
 
