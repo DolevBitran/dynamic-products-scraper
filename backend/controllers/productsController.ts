@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Product, { IProduct, IProductDocument } from '../models/Product';
+import Product, { IProductDocument } from '../models/Product';
 
 
 const getProducts = async (req: Request, res: Response) => {
@@ -16,9 +16,9 @@ const InsertAndUpdateProducts = async (req: Request, res: Response) => {
     const { products } = req.body
 
     try {
-        const operations = products.map((product: IProduct) => ({
+        const operations = products.map((product: IProductDocument) => ({
             updateOne: {
-                filter: { productId: product.productId },
+                filter: { _id: product._id },
                 update: { $set: product },
                 upsert: true,
             }
@@ -26,7 +26,7 @@ const InsertAndUpdateProducts = async (req: Request, res: Response) => {
 
         await Product.bulkWrite(operations);
         const updatedProducts = await Product.find({
-            productId: { $in: products.map((p: IProduct) => p.productId) }
+            _id: { $in: products.map((p: IProductDocument) => p._id) }
         });
 
         res.status(200).json({ success: true, updatedProducts })
