@@ -1,8 +1,15 @@
 import mongoose, { Schema, model, Document, ObjectId } from 'mongoose';
 
+enum FieldType {
+    TEXT = 'text',
+    LINK = 'link',
+    IMAGE = 'image',
+}
+
 interface IField {
     fieldName: string;
     selector: string;
+    type: FieldType
 }
 
 const FieldSchema = new Schema<IField>({
@@ -17,6 +24,11 @@ const FieldSchema = new Schema<IField>({
         required: [true, 'Must provide selector'],
         trim: true,
         // maxlength: [100, 'title can not be more than 100 characters']
+    },
+    type: {
+        type: String,
+        enum: Object.values(FieldType),
+        required: [true, 'Must provide type'],
     },
 }, {
     timestamps: true,
