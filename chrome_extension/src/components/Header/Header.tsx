@@ -1,4 +1,4 @@
-import kspLogo from '../../assets/KSP.png'
+import kspLogo from '@assets/KSP.png'
 
 const Header = () => {
 

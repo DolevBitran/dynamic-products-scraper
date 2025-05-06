@@ -6,6 +6,15 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@components': path.resolve(__dirname, './src/components'),
+      '@background': path.resolve(__dirname, './src/background'),
+      '@assets': path.resolve(__dirname, './src/assets'),
+      '@service': path.resolve(__dirname, './src/service'),
+      '@utils': path.resolve(__dirname, './src/utils')
+    },
+  },
   plugins: [
     react(),
     viteStaticCopy({

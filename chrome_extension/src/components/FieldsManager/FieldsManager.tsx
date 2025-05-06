@@ -5,6 +5,12 @@ import Label from "../Label";
 import Select from "../Select";
 import API from "../../api/service";
 import { ContentType, ScrapeType } from "../../utils/types";
+import Button from "@components/Button";
+import Input from "@components/Input";
+import Label from "@components/Label";
+import Select from "@components/Select";
+import API from "@service/api";
+import { ContentType, ScrapeType, STORAGE_KEYS } from "@utils/types";
 
 interface IFieldsManagerProps {
     fieldsData: Field[];

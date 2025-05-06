@@ -21,7 +21,15 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "types": ["chrome"]
+    "types": ["chrome"],
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@background/*": ["src/background/*"],
+      "@assets/*": ["src/assets/*"],
+      "@service/*": ["src/service/*"],
+      "@utils/*": ["src/utils/*"]
+    }
   },
   "include": ["src"]
 }

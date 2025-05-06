@@ -8,9 +8,9 @@ import {
     TableHeader,
     TableRow,
 } from "./TableContent";
-import Button from "../Button";
-import API from "../../api/service";
-import { ContentType } from "../../utils/types";
+import Button from "@components/Button";
+import API from "@service/api";
+import { ContentType } from "@utils/types";
 
 interface IResultsTableProps {
     data: Product[];
