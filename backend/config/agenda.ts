@@ -17,7 +17,8 @@ const agenda = new Agenda({
 
 // Define job types
 export const JOB_TYPES = {
-  PROCESS_PRODUCTS: 'process-products'
+  PROCESS_PRODUCTS: 'process-products',
+  SCRAPE_COLLECTION: 'scrape-collection'
 };
 
 // Start agenda
