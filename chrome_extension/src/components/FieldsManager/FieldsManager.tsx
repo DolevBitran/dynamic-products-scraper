@@ -1,16 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import Button from "../Button";
-import Input from "../Input";
-import Label from "../Label";
-import Select from "../Select";
-import API from "../../api/service";
-import { ContentType, ScrapeType } from "../../utils/types";
 import Button from "@components/Button";
 import Input from "@components/Input";
 import Label from "@components/Label";
 import Select from "@components/Select";
 import API from "@service/api";
 import { ContentType, ScrapeType, STORAGE_KEYS } from "@utils/types";
+import { getStorageState, setStorageItem } from "@service/storage";
 
 interface IFieldsManagerProps {
     fieldsData: Field[];
@@ -20,10 +15,43 @@ interface IFieldsManagerProps {
 const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
     const [newField, setNewField] = useState<Field>({ fieldName: '', selector: '', contentType: ContentType.TEXT, scrapeType: ScrapeType.PRODUCT });
     const [draftFieldsData, setDraftFieldsData] = useState<Field[]>([]);
+    const [isInitialized, setIsInitialized] = useState(false);
 
+    // Load stored draft fields and new field on component mount
     useEffect(() => {
-        setDraftFieldsData(fieldsData);
+        const loadStoredState = async () => {
+            try {
+                const storedState = await getStorageState();
+
+                // Only load stored draft fields if they exist and fieldsData is not empty
+                if (storedState.draftFieldsData && fieldsData.length > 0) {
+                    setDraftFieldsData(storedState.draftFieldsData);
+                } else {
+                    setDraftFieldsData(fieldsData);
+                }
+
+                // Load stored new field if it exists
+                if (storedState.newField) {
+                    setNewField(storedState.newField);
+                }
+
+                setIsInitialized(true);
+            } catch (error) {
+                console.error('Error loading field manager state:', error);
+                setDraftFieldsData(fieldsData);
+                setIsInitialized(true);
+            }
+        };
+
+        loadStoredState();
     }, [fieldsData]);
+
+    // Update draft fields when fieldsData changes and no draft exists
+    useEffect(() => {
+        if (isInitialized && draftFieldsData.length === 0 && fieldsData.length > 0) {
+            setDraftFieldsData(fieldsData);
+        }
+    }, [fieldsData, draftFieldsData.length, isInitialized]);
 
     const didFieldsChange = useMemo(() => {
         return JSON.stringify(fieldsData) !== JSON.stringify(draftFieldsData);
@@ -34,6 +62,7 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
             i === idx ? { ...field, contentType: e.target.value as ContentType } : field
         );
         setDraftFieldsData(updated);
+        setStorageItem(STORAGE_KEYS.DRAFT_FIELDS_DATA, updated);
     };
 
     const onScrapeTypeChange = (idx: number) => (e: { target: { value: string } }) => {
@@ -41,14 +70,22 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
             i === idx ? { ...field, scrapeType: e.target.value as ScrapeType } : field
         );
         setDraftFieldsData(updated);
+        setStorageItem(STORAGE_KEYS.DRAFT_FIELDS_DATA, updated);
     };
+
     const onAddField = async () => {
         if (!newField.fieldName || !newField.selector || !newField.contentType || !newField.scrapeType) return;
 
         try {
             const { data } = await API.post('/fields', { fields: [newField] })
-            setFieldsData(fields => ([...fields, { ...newField, _id: data.newId }]))
-            setNewField({ fieldName: "", selector: "", contentType: ContentType.TEXT, scrapeType: ScrapeType.CATEGORY });
+            const updatedFields = [...fieldsData, { ...newField, _id: data.newId }];
+            setFieldsData(updatedFields);
+
+            // Reset new field and update storage
+            const emptyField = { fieldName: "", selector: "", contentType: ContentType.TEXT, scrapeType: ScrapeType.CATEGORY };
+            setNewField(emptyField);
+            setStorageItem(STORAGE_KEYS.NEW_FIELD, emptyField);
+            setStorageItem(STORAGE_KEYS.FIELDS_DATA, updatedFields);
         } catch (error) {
             console.error(error)
         }
@@ -60,7 +97,14 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
             await API.delete('/fields', {
                 data: { fieldId },
             });
-            setFieldsData(fields => fields.filter(field => field._id !== fieldId))
+            const updatedFields = fieldsData.filter(field => field._id !== fieldId);
+            setFieldsData(updatedFields);
+
+            // Update draft fields and storage
+            const updatedDraft = draftFieldsData.filter(field => field._id !== fieldId);
+            setDraftFieldsData(updatedDraft);
+            setStorageItem(STORAGE_KEYS.FIELDS_DATA, updatedFields);
+            setStorageItem(STORAGE_KEYS.DRAFT_FIELDS_DATA, updatedDraft);
         } catch (error) {
             console.error(error)
         }
@@ -70,9 +114,19 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
         if (!didFieldsChange) return
 
         try {
-            const editedFields = draftFieldsData.filter((f, i) => f.fieldName !== fieldsData[i].fieldName || f.selector !== fieldsData[i].selector || f.contentType !== fieldsData[i].contentType || f.scrapeType !== fieldsData[i].scrapeType)
+            const editedFields = draftFieldsData.filter((f, i) => {
+                // Make sure we don't go out of bounds
+                if (i >= fieldsData.length) return true;
+
+                return f.fieldName !== fieldsData[i].fieldName ||
+                    f.selector !== fieldsData[i].selector ||
+                    f.contentType !== fieldsData[i].contentType ||
+                    f.scrapeType !== fieldsData[i].scrapeType;
+            });
+
             await API.post('/fields', { fields: editedFields })
-            setFieldsData(draftFieldsData)
+            setFieldsData(draftFieldsData);
+            setStorageItem(STORAGE_KEYS.FIELDS_DATA, draftFieldsData);
         } catch (error) {
             console.error(error)
         }
@@ -84,7 +138,7 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
                 i === idx ? { ...field, [fieldName]: e.target.value } : field
             );
             setDraftFieldsData(updated);
-            console.log({ updated, draftFieldsData, didFieldsChange })
+            setStorageItem(STORAGE_KEYS.DRAFT_FIELDS_DATA, updated);
         }
     }
 
@@ -218,7 +272,11 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
                             label: "Field Name",
                             id: "new-field-name",
                             value: newField.fieldName || "",
-                            onChange: (e) => setNewField(newField => ({ ...newField, fieldName: e.target.value })),
+                            onChange: (e) => {
+                                const updated = { ...newField, fieldName: e.target.value };
+                                setNewField(updated);
+                                setStorageItem(STORAGE_KEYS.NEW_FIELD, updated);
+                            },
                             placeHolder: "e.g., Product Image"
                         })}
 
@@ -227,7 +285,11 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
                             label: "CSS Selector",
                             id: "new-selector",
                             value: newField.selector || "",
-                            onChange: (e) => setNewField(newField => ({ ...newField, selector: e.target.value })),
+                            onChange: (e) => {
+                                const updated = { ...newField, selector: e.target.value };
+                                setNewField(updated);
+                                setStorageItem(STORAGE_KEYS.NEW_FIELD, updated);
+                            },
                             placeHolder: "e.g., .product-img>img"
                         })}
 
@@ -236,7 +298,11 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
                             label: "Content Type",
                             id: "new-field-content-type",
                             value: newField.contentType,
-                            onChange: (e) => setNewField(newField => ({ ...newField, contentType: e.target.value as ContentType })),
+                            onChange: (e) => {
+                                const updated = { ...newField, contentType: e.target.value as ContentType };
+                                setNewField(updated);
+                                setStorageItem(STORAGE_KEYS.NEW_FIELD, updated);
+                            },
                             options: [
                                 { value: ContentType.TEXT, label: 'Text' },
                                 { value: ContentType.LINK, label: 'Link' },
@@ -249,7 +315,11 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
                             label: "Scrape Type",
                             id: "new-field-scrape-type",
                             value: newField.scrapeType,
-                            onChange: (e) => setNewField(newField => ({ ...newField, scrapeType: e.target.value as ScrapeType })),
+                            onChange: (e) => {
+                                const updated = { ...newField, scrapeType: e.target.value as ScrapeType };
+                                setNewField(updated);
+                                setStorageItem(STORAGE_KEYS.NEW_FIELD, updated);
+                            },
                             options: [
                                 { value: ScrapeType.CATEGORY, label: 'Category' },
                                 { value: ScrapeType.PRODUCT, label: 'Product' }
