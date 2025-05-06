@@ -19,24 +19,25 @@ function scrapePage(fields: Field[]): void {
     const productElements = Array.from(document.querySelectorAll(SELECTORS.PRODUCTS))
     if (productElements.length) {
       products = productElements.map(el => {
-        const scrapedFields = fields.map(field => {
-          const fieldSelectors = field.selector.split(',')
-          const fieldEl = findElement(fieldSelectors, el)
+        const scrapedFields = fields
+          .map(field => {
+            const fieldSelectors = field.selector.split(',')
+            const fieldEl = findElement(fieldSelectors, el)
 
-          if (fieldEl) {
-            const content = fieldEl.textContent
-            const imageContent = (fieldEl as HTMLImageElement).currentSrc || window.getComputedStyle(fieldEl).backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1]
-            const linkContent = fieldEl.getAttribute("href")
-            const contentMap: { [key: string]: string | null | undefined } = {
-              image: imageContent,
-              photo: imageContent,
-              url: linkContent,
-              link: linkContent,
-            };
-            return { [field.fieldName]: contentMap[field.fieldName] || content }
-          }
-          return { [field.fieldName]: undefined }
-        })
+            if (fieldEl) {
+              const content = fieldEl.textContent
+              const imageContent = (fieldEl as HTMLImageElement).currentSrc || window.getComputedStyle(fieldEl).backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1]
+              const linkContent = fieldEl.getAttribute("href")
+              const contentMap: { [key: string]: string | null | undefined } = {
+                image: imageContent,
+                photo: imageContent,
+                url: linkContent,
+                link: linkContent,
+              };
+              return { [field.fieldName]: contentMap[field.fieldName] || content }
+            }
+            return { [field.fieldName]: undefined }
+          })
         return Object.assign({}, ...scrapedFields)
       })
     }
