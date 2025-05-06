@@ -1,3 +1,5 @@
+import { FieldType } from "../components/FieldsManager/FieldsManager";
+
 declare global {
     /*~ Here, declare things that go in the global namespace, or augment
      *~ existing declarations in the global namespace
@@ -11,6 +13,7 @@ declare global {
 
     interface Field {
         _id?: string;
+        type: FieldType;
         fieldName: string;
         selector: string;
     }

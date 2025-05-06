@@ -9,13 +9,15 @@ import {
     TableRow,
 } from "./TableContent";
 import Button from "../Button";
+import { FieldType } from "../FieldsManager/FieldsManager";
 import API from "../../api/service";
 
 interface IResultsTableProps {
     data: Product[];
+    fields: Field[];
 }
 
-const ResultsTable = ({ data }: IResultsTableProps) => {
+const ResultsTable = ({ data, fields }: IResultsTableProps) => {
     const [searchTerm, _setSearchTerm] = useState("");
     const [sortConfig, setSortConfig] = useState<{
         key: keyof Product | null;
@@ -56,17 +58,19 @@ const ResultsTable = ({ data }: IResultsTableProps) => {
     );
 
     const renderFieldCell = (fieldName: string, val: string) => {
-        switch (fieldName) {
-            case 'photo':
-            case 'image':
+        const field = fields.find(f => f.fieldName === fieldName)
+
+        if (!field) return null
+
+        switch (field.type) {
+            case FieldType.IMAGE:
                 return (
                     <TableCell>
                         <img src={val} width={'100%'} />
                     </TableCell>
                 );
 
-            case 'link':
-            case 'url':
+            case FieldType.LINK:
                 return (
                     <TableCell>
                         <a href={val} target="_blank">Link</a>

@@ -2,8 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import Button from "../Button";
 import Input from "../Input";
 import Label from "../Label";
+import Select from "../Select";
 import API from "../../api/service";
 
+export enum FieldType {
+    TEXT = 'text',
+    LINK = 'link',
+    IMAGE = 'image',
+}
 
 interface IFieldsManagerProps {
     fieldsData: Field[];
@@ -11,7 +17,7 @@ interface IFieldsManagerProps {
 }
 
 const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
-    const [newField, setNewField] = useState<Selector>({ fieldName: '', selector: '' });
+    const [newField, setNewField] = useState<Field>({ fieldName: '', selector: '', type: FieldType.TEXT });
     const [draftFieldsData, setDraftFieldsData] = useState<Field[]>([]);
 
     useEffect(() => {
@@ -22,13 +28,14 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
         return JSON.stringify(fieldsData) !== JSON.stringify(draftFieldsData);
     }, [fieldsData, draftFieldsData]);
 
+    const onTypeChange = (idx: number) => (e: { target: { value: FieldType; }; }) => setDraftFieldsData(draftFieldsData.map((f, i) => i === idx ? { ...f, type: e.target.value as FieldType } : f));
     const onAddField = async () => {
-        if (!newField.fieldName || !newField.selector) return;
+        if (!newField.fieldName || !newField.selector || !newField.type) return;
 
         try {
             const { data } = await API.post('/fields', { fields: [newField] })
             setFieldsData(fields => ([...fields, { ...newField, _id: data.newId }]))
-            setNewField({ fieldName: "", selector: "" });
+            setNewField({ fieldName: "", selector: "", type: FieldType.TEXT });
         } catch (error) {
             console.error(error)
         }
@@ -50,7 +57,7 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
         if (!didFieldsChange) return
 
         try {
-            const editedFields = draftFieldsData.filter((f, i) => f.fieldName !== fieldsData[i].fieldName || f.selector !== fieldsData[i].selector)
+            const editedFields = draftFieldsData.filter((f, i) => f.fieldName !== fieldsData[i].fieldName || f.selector !== fieldsData[i].selector || f.type !== fieldsData[i].type)
             await API.post('/fields', { fields: editedFields })
             setFieldsData(draftFieldsData)
         } catch (error) {
@@ -97,6 +104,31 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
             />
         </div >
 
+    const selectRenderer = ({
+        htmlFor,
+        label,
+        id,
+        value,
+        onChange,
+        options
+    }: {
+        htmlFor?: string,
+        label?: string,
+        id?: string,
+        value?: string,
+        onChange?: (e: any) => void,
+        options: { value: string, label: string }[]
+    }) => <div>
+            <Label htmlFor={htmlFor} className="text-xs text-gray-500">{label}</Label>
+            <Select
+                id={id}
+                value={value}
+                onChange={onChange}
+                className="h-8 text-sm"
+                options={options}
+            />
+        </div >
+
     const fieldRenderer = (field: Field, idx: number) => <div key={idx} className="flex-1 overflow-auto p-4 border rounded-md  my-2">
         <div className="flex justify-between items-start mb-2">
             <div className="font-medium">{field.fieldName}</div>
@@ -118,6 +150,18 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
                 defaultValue: field.selector,
                 onChange: onInputChanged(idx),
                 // placeHolder
+            })}
+            {selectRenderer({
+                htmlFor: `field-type-${idx}`,
+                label: "Field Type",
+                id: `field-type-${idx}`,
+                value: field.type || FieldType.TEXT,
+                onChange: onTypeChange(idx),
+                options: [
+                    { value: FieldType.TEXT, label: 'Text' },
+                    { value: FieldType.LINK, label: 'Link' },
+                    { value: FieldType.IMAGE, label: 'Image' }
+                ]
             })}
         </div>
     </div>
@@ -149,10 +193,23 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
                             placeHolder: "e.g., .product-img>img"
                         })}
 
+                        {selectRenderer({
+                            htmlFor: "new-field-type",
+                            label: "Field Type",
+                            id: "new-field-type",
+                            value: newField.type || FieldType.TEXT,
+                            onChange: (e) => setNewField(newField => ({ ...newField, type: e.target.value as FieldType })),
+                            options: [
+                                { value: FieldType.TEXT, label: 'Text' },
+                                { value: FieldType.LINK, label: 'Link' },
+                                { value: FieldType.IMAGE, label: 'Image' }
+                            ]
+                        })}
+
                         <Button
                             onClick={onAddField}
                             className="w-full mt-2 text-white bg-black"
-                            disabled={!newField.fieldName || !newField.selector}
+                            disabled={!newField.fieldName || !newField.selector || !newField.type}
                             size="sm"
                         >
                             {/* <PlusCircle className="h-4 w-4 mr-2" /> */}

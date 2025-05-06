@@ -75,7 +75,7 @@ function App() {
 
         <TabsContent value="results" className="flex-1 overflow-hidden">
           {!!scrapedData.length &&
-            <Table data={scrapedData} />
+            <Table data={scrapedData} fields={fieldsData} />
           }
         </TabsContent>
 
