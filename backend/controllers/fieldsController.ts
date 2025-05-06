@@ -31,23 +31,70 @@ const InsertAndUpdateFields = async (req: Request, res: Response) => {
     const { fields } = req.body
 
     try {
-        const operations = fields.map((field: IField) => ({
-            updateOne: {
-                filter: { fieldName: field.fieldName },
-                update: { $set: field },
-                upsert: true,
-            }
-        }));
+        // Define a type that extends IField to include _id for the controller context
+        type FieldWithId = IField & { _id?: string };
+        
+        // Handle fields with _id separately from new fields
+        const existingFields = fields.filter((field: FieldWithId) => field._id);
+        const newFields = fields.filter((field: FieldWithId) => !field._id);
+        
+        let operations: any[] = [];
+        
+        // For existing fields, update by _id
+        if (existingFields.length > 0) {
+            operations = existingFields.map((field: FieldWithId) => ({
+                updateOne: {
+                    filter: { _id: field._id },
+                    update: { 
+                        $set: {
+                            fieldName: field.fieldName,
+                            selector: field.selector,
+                            contentType: field.contentType,
+                            scrapeType: field.scrapeType
+                        } 
+                    }
+                }
+            }));
+        }
+        
+        // For new fields, use upsert with fieldName as the key
+        if (newFields.length > 0) {
+            const newFieldsOps = newFields.map((field: FieldWithId) => ({
+                updateOne: {
+                    filter: { fieldName: field.fieldName },
+                    update: { $set: field },
+                    upsert: true
+                }
+            }));
+            
+            operations = [...operations, ...newFieldsOps];
+        }
 
-        const results = await Field.bulkWrite(operations);
+        // Only perform bulkWrite if there are operations
+        let results: { upsertedIds: Record<string, any> } = { upsertedIds: {} };
+        let updatedFields: IFieldDocument[] = [];
+        
+        if (operations.length > 0) {
+            results = await Field.bulkWrite(operations);
+            
+            // Get all updated fields
+            updatedFields = await Field.find({
+                fieldName: { $in: fields.map((f: FieldWithId) => f.fieldName) }
+            });
+        }
 
-        const updatedFields = await Field.find({
-            fieldName: { $in: fields.map((f: IField) => f.fieldName) }
+        // Get the first upserted ID if any
+        const upsertedIdsKeys = Object.keys(results.upsertedIds);
+        const newId = upsertedIdsKeys.length > 0 ? results.upsertedIds[upsertedIdsKeys[0]] : null;
+
+        res.status(200).json({ 
+            success: true, 
+            updatedFields, 
+            newId 
         });
-
-        res.status(200).json({ success: true, updatedFields, newId: results.upsertedIds[0] })
     } catch (error: any) {
-        res.status(500).json({ error: 'Server Error' });
+        console.error('Error in InsertAndUpdateFields:', error);
+        res.status(500).json({ error: error.message || 'Server Error' });
     }
 }
 

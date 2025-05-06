@@ -1,15 +1,21 @@
 import mongoose, { Schema, model, Document, ObjectId } from 'mongoose';
 
-enum FieldType {
+enum ContentType {
     TEXT = 'text',
     LINK = 'link',
     IMAGE = 'image',
 }
 
+enum ScrapeType {
+    CATEGORY = 'category',
+    PRODUCT = 'product',
+}
+
 interface IField {
     fieldName: string;
     selector: string;
-    type: FieldType
+    contentType: ContentType;
+    scrapeType: ScrapeType;
 }
 
 const FieldSchema = new Schema<IField>({
@@ -25,10 +31,15 @@ const FieldSchema = new Schema<IField>({
         trim: true,
         // maxlength: [100, 'title can not be more than 100 characters']
     },
-    type: {
+    contentType: {
         type: String,
-        enum: Object.values(FieldType),
-        required: [true, 'Must provide type'],
+        enum: Object.values(ContentType),
+        required: [true, 'Must provide content type'],
+    },
+    scrapeType: {
+        type: String,
+        enum: Object.values(ScrapeType),
+        required: [true, 'Must provide scrape type'],
     },
 }, {
     timestamps: true,
@@ -37,10 +48,11 @@ const FieldSchema = new Schema<IField>({
 })
 
 interface IFieldBaseDocument extends IField, Document {
+    _id: string; // Explicitly define _id from Document
 }
 
 export interface IFieldDocument extends IFieldBaseDocument {
 }
 
 export default model<IField>('Field', FieldSchema, 'Fields')
-export { IField }
+export { IField, ScrapeType, ContentType }

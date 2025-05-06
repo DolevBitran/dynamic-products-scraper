@@ -4,12 +4,7 @@ import Input from "../Input";
 import Label from "../Label";
 import Select from "../Select";
 import API from "../../api/service";
-
-export enum FieldType {
-    TEXT = 'text',
-    LINK = 'link',
-    IMAGE = 'image',
-}
+import { ContentType, ScrapeType } from "../../utils/types";
 
 interface IFieldsManagerProps {
     fieldsData: Field[];
@@ -17,7 +12,7 @@ interface IFieldsManagerProps {
 }
 
 const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
-    const [newField, setNewField] = useState<Field>({ fieldName: '', selector: '', type: FieldType.TEXT });
+    const [newField, setNewField] = useState<Field>({ fieldName: '', selector: '', contentType: ContentType.TEXT, scrapeType: ScrapeType.PRODUCT });
     const [draftFieldsData, setDraftFieldsData] = useState<Field[]>([]);
 
     useEffect(() => {
@@ -28,14 +23,26 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
         return JSON.stringify(fieldsData) !== JSON.stringify(draftFieldsData);
     }, [fieldsData, draftFieldsData]);
 
-    const onTypeChange = (idx: number) => (e: { target: { value: FieldType; }; }) => setDraftFieldsData(draftFieldsData.map((f, i) => i === idx ? { ...f, type: e.target.value as FieldType } : f));
+    const onContentTypeChange = (idx: number) => (e: { target: { value: string } }) => {
+        const updated = draftFieldsData.map((field, i) =>
+            i === idx ? { ...field, contentType: e.target.value as ContentType } : field
+        );
+        setDraftFieldsData(updated);
+    };
+
+    const onScrapeTypeChange = (idx: number) => (e: { target: { value: string } }) => {
+        const updated = draftFieldsData.map((field, i) =>
+            i === idx ? { ...field, scrapeType: e.target.value as ScrapeType } : field
+        );
+        setDraftFieldsData(updated);
+    };
     const onAddField = async () => {
-        if (!newField.fieldName || !newField.selector || !newField.type) return;
+        if (!newField.fieldName || !newField.selector || !newField.contentType || !newField.scrapeType) return;
 
         try {
             const { data } = await API.post('/fields', { fields: [newField] })
             setFieldsData(fields => ([...fields, { ...newField, _id: data.newId }]))
-            setNewField({ fieldName: "", selector: "", type: FieldType.TEXT });
+            setNewField({ fieldName: "", selector: "", contentType: ContentType.TEXT, scrapeType: ScrapeType.CATEGORY });
         } catch (error) {
             console.error(error)
         }
@@ -57,24 +64,26 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
         if (!didFieldsChange) return
 
         try {
-            const editedFields = draftFieldsData.filter((f, i) => f.fieldName !== fieldsData[i].fieldName || f.selector !== fieldsData[i].selector || f.type !== fieldsData[i].type)
+            const editedFields = draftFieldsData.filter((f, i) => f.fieldName !== fieldsData[i].fieldName || f.selector !== fieldsData[i].selector || f.contentType !== fieldsData[i].contentType || f.scrapeType !== fieldsData[i].scrapeType)
             await API.post('/fields', { fields: editedFields })
             setFieldsData(draftFieldsData)
         } catch (error) {
             console.error(error)
         }
-
     };
 
-    const onInputChanged = (idx: number) => {
+    const onFieldChanged = (idx: number, fieldName: string) => {
         return (e: any) => {
             const updated = draftFieldsData.map((field, i) =>
-                i === idx ? { ...field, selector: e.target.value } : field
+                i === idx ? { ...field, [fieldName]: e.target.value } : field
             );
             setDraftFieldsData(updated);
             console.log({ updated, draftFieldsData, didFieldsChange })
         }
     }
+
+    const onInputChanged = (idx: number) => onFieldChanged(idx, 'selector');
+    const onFieldNameChanged = (idx: number) => onFieldChanged(idx, 'fieldName');
 
     const inputRenderer = ({
         htmlFor,
@@ -129,42 +138,65 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
             />
         </div >
 
-    const fieldRenderer = (field: Field, idx: number) => <div key={idx} className="flex-1 overflow-auto p-4 border rounded-md  my-2">
-        <div className="flex justify-between items-start mb-2">
-            <div className="font-medium">{field.fieldName}</div>
-            <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onDeleteField(field._id)}
-            >
-                X
-            </Button>
-        </div>
+    const fieldRenderer = (field: Field, idx: number) => {
+        // Use the draft field data to ensure the component reflects the current state
+        const draftField = draftFieldsData[idx] || field;
 
-        <div className="space-y-3">
-            {inputRenderer({
-                htmlFor: `selector-${idx}`,
-                label: "CSS Selector",
-                id: `selector-${idx}`,
-                // value,
-                defaultValue: field.selector,
-                onChange: onInputChanged(idx),
-                // placeHolder
-            })}
-            {selectRenderer({
-                htmlFor: `field-type-${idx}`,
-                label: "Field Type",
-                id: `field-type-${idx}`,
-                value: field.type || FieldType.TEXT,
-                onChange: onTypeChange(idx),
-                options: [
-                    { value: FieldType.TEXT, label: 'Text' },
-                    { value: FieldType.LINK, label: 'Link' },
-                    { value: FieldType.IMAGE, label: 'Image' }
-                ]
-            })}
-        </div>
-    </div>
+        return (
+            <div key={idx} className="flex-1 overflow-auto p-4 border rounded-md my-2">
+                <div className="flex justify-between items-start mb-2">
+                    <div className="font-medium">{draftField.fieldName}</div>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDeleteField(field._id)}
+                    >
+                        X
+                    </Button>
+                </div>
+
+                <div className="space-y-3">
+                    {inputRenderer({
+                        htmlFor: `field-name-${idx}`,
+                        label: "Field Name",
+                        id: `field-name-${idx}`,
+                        value: draftField.fieldName,
+                        onChange: onFieldNameChanged(idx),
+                    })}
+                    {inputRenderer({
+                        htmlFor: `selector-${idx}`,
+                        label: "CSS Selector",
+                        id: `selector-${idx}`,
+                        value: draftField.selector,
+                        onChange: onInputChanged(idx),
+                    })}
+                    {selectRenderer({
+                        htmlFor: `field-content-type-${idx}`,
+                        label: "Content Type",
+                        id: `field-content-type-${idx}`,
+                        value: draftField.contentType,
+                        onChange: onContentTypeChange(idx),
+                        options: [
+                            { value: ContentType.TEXT, label: 'Text' },
+                            { value: ContentType.LINK, label: 'Link' },
+                            { value: ContentType.IMAGE, label: 'Image' }
+                        ]
+                    })}
+                    {selectRenderer({
+                        htmlFor: `field-scrape-type-${idx}`,
+                        label: "Scrape Type",
+                        id: `field-scrape-type-${idx}`,
+                        value: draftField.scrapeType,
+                        onChange: onScrapeTypeChange(idx),
+                        options: [
+                            { value: ScrapeType.CATEGORY, label: 'Category' },
+                            { value: ScrapeType.PRODUCT, label: 'Product' }
+                        ]
+                    })}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex-1">
@@ -194,22 +226,34 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
                         })}
 
                         {selectRenderer({
-                            htmlFor: "new-field-type",
-                            label: "Field Type",
-                            id: "new-field-type",
-                            value: newField.type || FieldType.TEXT,
-                            onChange: (e) => setNewField(newField => ({ ...newField, type: e.target.value as FieldType })),
+                            htmlFor: "new-field-content-type",
+                            label: "Content Type",
+                            id: "new-field-content-type",
+                            value: newField.contentType,
+                            onChange: (e) => setNewField(newField => ({ ...newField, contentType: e.target.value as ContentType })),
                             options: [
-                                { value: FieldType.TEXT, label: 'Text' },
-                                { value: FieldType.LINK, label: 'Link' },
-                                { value: FieldType.IMAGE, label: 'Image' }
+                                { value: ContentType.TEXT, label: 'Text' },
+                                { value: ContentType.LINK, label: 'Link' },
+                                { value: ContentType.IMAGE, label: 'Image' }
+                            ]
+                        })}
+
+                        {selectRenderer({
+                            htmlFor: "new-field-scrape-type",
+                            label: "Scrape Type",
+                            id: "new-field-scrape-type",
+                            value: newField.scrapeType,
+                            onChange: (e) => setNewField(newField => ({ ...newField, scrapeType: e.target.value as ScrapeType })),
+                            options: [
+                                { value: ScrapeType.CATEGORY, label: 'Category' },
+                                { value: ScrapeType.PRODUCT, label: 'Product' }
                             ]
                         })}
 
                         <Button
                             onClick={onAddField}
                             className="w-full mt-2 text-white bg-black"
-                            disabled={!newField.fieldName || !newField.selector || !newField.type}
+                            disabled={!newField.fieldName || !newField.selector || !newField.contentType || !newField.scrapeType}
                             size="sm"
                         >
                             {/* <PlusCircle className="h-4 w-4 mr-2" /> */}

@@ -9,8 +9,8 @@ import {
     TableRow,
 } from "./TableContent";
 import Button from "../Button";
-import { FieldType } from "../FieldsManager/FieldsManager";
 import API from "../../api/service";
+import { ContentType } from "../../utils/types";
 
 interface IResultsTableProps {
     data: Product[];
@@ -62,15 +62,15 @@ const ResultsTable = ({ data, fields }: IResultsTableProps) => {
 
         if (!field) return null
 
-        switch (field.type) {
-            case FieldType.IMAGE:
+        switch (field.contentType) {
+            case ContentType.IMAGE:
                 return (
                     <TableCell>
                         <img src={val} width={'100%'} />
                     </TableCell>
                 );
 
-            case FieldType.LINK:
+            case ContentType.LINK:
                 return (
                     <TableCell>
                         <a href={val} target="_blank">Link</a>

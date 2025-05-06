@@ -1,4 +1,13 @@
-import { FieldType } from "../components/FieldsManager/FieldsManager";
+export enum ContentType {
+    TEXT = 'text',
+    LINK = 'link',
+    IMAGE = 'image',
+}
+
+export enum ScrapeType {
+    CATEGORY = 'category',
+    PRODUCT = 'product',
+}
 
 declare global {
     /*~ Here, declare things that go in the global namespace, or augment
@@ -13,7 +22,8 @@ declare global {
 
     interface Field {
         _id?: string;
-        type: FieldType;
+        contentType: ContentType;
+        scrapeType: ScrapeType;
         fieldName: string;
         selector: string;
     }
