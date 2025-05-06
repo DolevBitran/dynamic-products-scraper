@@ -14,6 +14,32 @@ type BulkOperation = {
 };
 
 
+export const insertDataToDB = async (productsData: IProductDocument[] | undefined, ops?: BulkOperation[]) => {
+    if (!ops?.length && !productsData?.length) {
+        return null
+    }
+
+    const operations = ops || productsData?.map((product: IProductDocument) => ({
+        updateOne: {
+            filter: { _id: product._id },
+            update: { $set: product },
+            upsert: true
+        }
+    }))
+
+    // Execute bulk write
+    const bulkWriteResult = await Product.bulkWrite(operations as BulkOperation[]);
+    console.log('Bulk write result:', JSON.stringify({
+        insertedCount: bulkWriteResult.insertedCount,
+        matchedCount: bulkWriteResult.matchedCount,
+        modifiedCount: bulkWriteResult.modifiedCount,
+        deletedCount: bulkWriteResult.deletedCount,
+        upsertedCount: bulkWriteResult.upsertedCount
+    }, null, 2));
+    return bulkWriteResult;
+}
+
+
 const getProducts = async (req: Request, res: Response): Promise<void> => {
     try {
         const products: IProductDocument[] = await Product.find({});
@@ -118,15 +144,7 @@ const InsertAndUpdateProducts = async (req: Request, res: Response): Promise<voi
 
         console.log(`Created ${operations.length} bulk write operations`);
 
-        // Execute bulk write
-        const bulkWriteResult = await Product.bulkWrite(operations);
-        console.log('Bulk write result:', JSON.stringify({
-            insertedCount: bulkWriteResult.insertedCount,
-            matchedCount: bulkWriteResult.matchedCount,
-            modifiedCount: bulkWriteResult.modifiedCount,
-            deletedCount: bulkWriteResult.deletedCount,
-            upsertedCount: bulkWriteResult.upsertedCount
-        }, null, 2));
+        await insertDataToDB(undefined, operations);
 
         // Get all product IDs we processed
         const productIds = processedProducts.map(product => product._id);
@@ -143,21 +161,21 @@ const InsertAndUpdateProducts = async (req: Request, res: Response): Promise<voi
             // Queue the job and get the job object
             const job = await queueProductProcessing(productsToProcess);
             console.log('Job queued with ID:', job.attrs._id);
-            
+
             // Wait for the job to complete and get its result
             await new Promise(resolve => {
                 const checkJobStatus = async () => {
                     try {
                         // Get the latest job data
                         const completedJobs = await agenda.jobs({ _id: job.attrs._id });
-                        
+
                         if (completedJobs.length > 0) {
                             const completedJob = completedJobs[0];
-                            
+
                             if (completedJob.attrs.lastFinishedAt) {
                                 // Log all job attributes to debug
                                 console.log('Job completed. Full job data:', JSON.stringify(completedJob.attrs, null, 2));
-                                
+
                                 // Get the result from the job data
                                 if (completedJob.attrs.data && completedJob.attrs.data.result) {
                                     console.log('Job result found in data:', completedJob.attrs.data.result);
@@ -181,11 +199,11 @@ const InsertAndUpdateProducts = async (req: Request, res: Response): Promise<voi
                         resolve(null);
                     }
                 };
-                
+
                 // Start checking
                 checkJobStatus();
             });
-            
+
             console.log('Successfully processed products');
         } catch (error) {
             console.error('Error queuing or processing products:', error);

@@ -1,14 +1,10 @@
 import agenda, { JOB_TYPES } from '../config/agenda';
 import { fieldsData } from '../controllers/fieldsController';
+import { insertDataToDB } from '../controllers/productsController';
 import { ScrapeType } from '../models/Field';
-import { IProductDocument } from '../models/Product';
+import Product, { IProductDocument } from '../models/Product';
 import * as cheerio from 'cheerio';
 
-// Define job data interface for type safety
-interface ProcessProductsJobData {
-  products: IProductDocument[];
-  scheduledAt: Date;
-}
 
 const findElement = (selectors: string[], elementScope: ReturnType<typeof cheerio.load>): ReturnType<typeof elementScope> | null => {
   for (const selector of selectors) {
@@ -46,7 +42,7 @@ const scrapeProductPage = async (p: { link: string }) => {
         return { [field.fieldName]: undefined }
       }
     })
-  return Object.assign({}, ...scrapedFields)
+  return Object.assign(p, ...scrapedFields)
 }
 
 // Define the job processor for handling product data
@@ -63,14 +59,13 @@ export const defineJobs = () => {
       // For now, just log the products that were saved
       console.log('Processing products job started');
       console.log(`Received ${products.length} products to process`);
-      console.log('Products:', JSON.stringify(products, null, 2));
 
       // Map product links for return value
       const productsData = products.map(scrapeProductPage);
 
+
       // Store the result in the job data
       job.attrs.data.result = await Promise.all(productsData);
-      console.log(job.attrs.data.result)
       await job.save();
     } catch (error) {
       console.error('Error processing products job:', error);
@@ -180,6 +175,9 @@ export const queueProductProcessing = async (products: IProductDocument[]) => {
           // Check if the job has completed (has results)
           if (jobData.result) {
             console.log(`Job ${jobId} completed with results:`, jobData.result);
+            if (jobData.result.length > 0) {
+              await insertDataToDB(jobData.result);
+            }
             return true;
           }
         }

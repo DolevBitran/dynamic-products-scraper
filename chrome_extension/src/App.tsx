@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Header from '@components/Header';
 import Table from '@components/Table';
 import Tabs, { TabsContent, TabsList, TabsTrigger } from '@components/Tabs';
@@ -6,12 +6,14 @@ import FieldsManager from '@components/FieldsManager';
 import Button from '@components/Button';
 import API from '@service/api';
 import { getStorageState, setStorageItem } from '@service/storage';
-import { STORAGE_KEYS } from '@utils/types';
+import { ScrapeType, STORAGE_KEYS } from '@utils/types';
 import './App.css'
 
 function App() {
   const [scrapedData, setScrapedData] = useState<Product[]>([]);
   const [fieldsData, setFieldsData] = useState<Field[]>([]);
+  const CategoryFieldsData = useMemo(() => fieldsData
+    .filter(field => field.scrapeType === ScrapeType.CATEGORY), [fieldsData])
   const [activeTab, setActiveTab] = useState("main");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -22,16 +24,17 @@ function App() {
       try {
         const storedState = await getStorageState();
         console.log({ storedState });
-        if (storedState.scrapedData) {
-          setScrapedData(storedState.scrapedData);
-        }
+        // if (storedState.scrapedData) {
+        //   setScrapedData(storedState.scrapedData);
+        // }
 
-        if (storedState.fieldsData) {
-          setFieldsData(storedState.fieldsData);
-        } else {
-          // If no stored fields, fetch from API
-          await fetchFields();
-        }
+        // if (storedState.fieldsData) {
+        // setFieldsData(storedState.fieldsData);
+
+        // } else {
+        // If no stored fields, fetch from API
+        await fetchFields();
+        // }
 
         if (storedState.activeTab) {
           setActiveTab(storedState.activeTab);
@@ -47,19 +50,6 @@ function App() {
 
     loadStateFromStorage();
   }, []);
-
-  // Save state to Chrome storage whenever it changes
-  useEffect(() => {
-    if (!isLoading) {
-      setStorageItem(STORAGE_KEYS.SCRAPED_DATA, scrapedData);
-    }
-  }, [scrapedData, isLoading]);
-
-  useEffect(() => {
-    if (!isLoading) {
-      setStorageItem(STORAGE_KEYS.FIELDS_DATA, fieldsData);
-    }
-  }, [fieldsData, isLoading]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -99,7 +89,7 @@ function App() {
         console.error('No active tab found');
         return;
       }
-      chrome.tabs.sendMessage(tab.id, { type: "MANUAL_SCRAPE", fields: fieldsData }, (response) => {
+      chrome.tabs.sendMessage(tab.id, { type: "MANUAL_SCRAPE", fields: CategoryFieldsData }, (response) => {
         console.log({ response });
       });
     });
