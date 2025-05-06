@@ -1,11 +1,30 @@
 import { Request, Response } from 'express';
 import Field, { IField, IFieldDocument } from '../models/Field';
 
+// Store fields data in an array that will be kept up to date
+export let fieldsData: IFieldDocument[] = [];
+
+// Function to load fields from database
+export const loadFieldsFromDB = async (): Promise<IFieldDocument[]> => {
+    try {
+        const fields = await Field.find({});
+        // Convert Mongoose documents to plain objects to avoid type issues
+        fieldsData = JSON.parse(JSON.stringify(fields));
+        console.log(`Loaded ${fields.length} fields from database`);
+        return fieldsData;
+    } catch (error) {
+        console.error('Error loading fields from database:', error);
+        return [];
+    }
+};
 
 const getFields = async (req: Request, res: Response) => {
     try {
-        const fields: IFieldDocument[] = await Field.find({});
-        res.status(200).json({ success: true, count: fields.length, fields })
+        // Use the cached fieldsData if available, otherwise fetch from DB
+        if (fieldsData.length === 0) {
+            await loadFieldsFromDB();
+        }
+        res.status(200).json({ success: true, count: fieldsData.length, fields: fieldsData })
     } catch (error: any) {
         console.log({ error })
         res.status(400).json({ error });
@@ -19,6 +38,10 @@ const DeleteField = async (req: Request, res: Response) => {
     try {
         await Field.findByIdAndDelete(fieldId);
         console.log("Document deleted successfully");
+        
+        // Update the fieldsData array after deletion
+        await loadFieldsFromDB();
+        
         res.status(200).json({ success: true })
 
     } catch (error) {
@@ -33,30 +56,30 @@ const InsertAndUpdateFields = async (req: Request, res: Response) => {
     try {
         // Define a type that extends IField to include _id for the controller context
         type FieldWithId = IField & { _id?: string };
-        
+
         // Handle fields with _id separately from new fields
         const existingFields = fields.filter((field: FieldWithId) => field._id);
         const newFields = fields.filter((field: FieldWithId) => !field._id);
-        
+
         let operations: any[] = [];
-        
+
         // For existing fields, update by _id
         if (existingFields.length > 0) {
             operations = existingFields.map((field: FieldWithId) => ({
                 updateOne: {
                     filter: { _id: field._id },
-                    update: { 
+                    update: {
                         $set: {
                             fieldName: field.fieldName,
                             selector: field.selector,
                             contentType: field.contentType,
                             scrapeType: field.scrapeType
-                        } 
+                        }
                     }
                 }
             }));
         }
-        
+
         // For new fields, use upsert with fieldName as the key
         if (newFields.length > 0) {
             const newFieldsOps = newFields.map((field: FieldWithId) => ({
@@ -66,17 +89,17 @@ const InsertAndUpdateFields = async (req: Request, res: Response) => {
                     upsert: true
                 }
             }));
-            
+
             operations = [...operations, ...newFieldsOps];
         }
 
         // Only perform bulkWrite if there are operations
         let results: { upsertedIds: Record<string, any> } = { upsertedIds: {} };
         let updatedFields: IFieldDocument[] = [];
-        
+
         if (operations.length > 0) {
             results = await Field.bulkWrite(operations);
-            
+
             // Get all updated fields
             updatedFields = await Field.find({
                 fieldName: { $in: fields.map((f: FieldWithId) => f.fieldName) }
@@ -87,10 +110,13 @@ const InsertAndUpdateFields = async (req: Request, res: Response) => {
         const upsertedIdsKeys = Object.keys(results.upsertedIds);
         const newId = upsertedIdsKeys.length > 0 ? results.upsertedIds[upsertedIdsKeys[0]] : null;
 
-        res.status(200).json({ 
-            success: true, 
-            updatedFields, 
-            newId 
+        // Update the fieldsData array after modifications
+        await loadFieldsFromDB();
+
+        res.status(200).json({
+            success: true,
+            updatedFields,
+            newId
         });
     } catch (error: any) {
         console.error('Error in InsertAndUpdateFields:', error);

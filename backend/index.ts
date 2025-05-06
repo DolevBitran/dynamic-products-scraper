@@ -5,6 +5,9 @@ import productsRoute from './routes/products';
 import fieldsRoute from './routes/fields';
 import config from './config/config';
 import connectDB from './db/connect';
+import { startAgenda } from './config/agenda';
+import { defineJobs } from './jobs/productJobs';
+import { loadFieldsFromDB } from './controllers/fieldsController';
 
 const app: Application = express()
 
@@ -19,10 +22,25 @@ app.use('/fields', fieldsRoute)
 
 const start = async () => {
     try {
-        await connectDB(config.MONGO_URI)
-        app.listen(config.PORT, () => console.log(`Server is lisening on port ${config.PORT}...🏃`))
+        // Connect to MongoDB
+        await connectDB(config.MONGO_URI);
+        
+        // Initialize and start Agenda
+        const agenda = await startAgenda();
+        
+        // Define all job processors
+        defineJobs();
+        
+        // Load fields from database on startup
+        await loadFieldsFromDB();
+        
+        // Start the server
+        app.listen(config.PORT, () => {
+            console.log(`Server is listening on port ${config.PORT}...🏃`);
+            console.log('Agenda job scheduler initialized');
+        });
     } catch (err) {
-        console.log(err)
+        console.log(err);
     }
 }
 
