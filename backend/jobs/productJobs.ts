@@ -74,39 +74,39 @@ export const defineJobs = () => {
   };
 
   // Scrape all existing products job processor function
-  const scrapeCollectionJob = async (job: any) => {
-    console.log('SCRAPE_COLLECTION: Starting job to scrape all products');
-    try {
-      // Import the Product model directly to avoid circular dependencies
-      const Product = (await import('../models/Product')).default;
+  // const scrapeCollectionJob = async (job: any) => {
+  //   console.log('SCRAPE_COLLECTION: Starting job to scrape all products');
+  //   try {
+  //     // Import the Product model directly to avoid circular dependencies
+  //     const Product = (await import('../models/Product')).default;
 
-      // Get all products from the database
-      const products = await Product.find({}).lean();
-      console.log(`SCRAPE_COLLECTION: Found ${products.length} products`);
+  //     // Get all products from the database
+  //     const products = await Product.find({}).lean();
+  //     console.log(`SCRAPE_COLLECTION: Found ${products.length} products`);
 
-      // If there are products, process them
-      if (products.length > 0) {
-        console.log('SCRAPE_COLLECTION: Queueing products for processing');
+  //     // If there are products, process them
+  //     if (products.length > 0) {
+  //       console.log('SCRAPE_COLLECTION: Queueing products for processing');
 
-        // Convert to the expected type for processing
-        const productsToProcess = products as unknown as IProductDocument[];
+  //       // Convert to the expected type for processing
+  //       const productsToProcess = products as unknown as IProductDocument[];
 
-        // Queue the products for processing
-        const processJob = await queueProductProcessing(productsToProcess);
-        console.log(`SCRAPE_COLLECTION: Queued processing job with ID: ${processJob.attrs._id}`);
+  //       // Queue the products for processing
+  //       const processJob = await queueProductProcessing(productsToProcess);
+  //       console.log(`SCRAPE_COLLECTION: Queued processing job with ID: ${processJob.attrs._id}`);
 
-        // Store the result reference in the job data
-        job.attrs.data.processJobId = processJob.attrs._id;
-        job.attrs.data.productsCount = products.length;
-        await job.save();
-      } else {
-        console.log('SCRAPE_COLLECTION: No products found to process');
-      }
-    } catch (error) {
-      console.error('Error in scrapeCollectionJob:', error);
-      throw error;
-    }
-  };
+  //       // Store the result reference in the job data
+  //       job.attrs.data.processJobId = processJob.attrs._id;
+  //       job.attrs.data.productsCount = products.length;
+  //       await job.save();
+  //     } else {
+  //       console.log('SCRAPE_COLLECTION: No products found to process');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error in scrapeCollectionJob:', error);
+  //     throw error;
+  //   }
+  // };
 
   // Define the jobs with their processor functions
   agenda.define(
@@ -114,27 +114,27 @@ export const defineJobs = () => {
     processProductsJob
   );
 
-  agenda.define(
-    JOB_TYPES.SCRAPE_COLLECTION,
-    scrapeCollectionJob
-  );
+  // agenda.define(
+  //   JOB_TYPES.SCRAPE_COLLECTION,
+  //   scrapeCollectionJob
+  // );
 
   // Schedule the recurring job to get all products every 5 minutes
-  (async () => {
-    try {
-      // Cancel any existing jobs of this type
-      await agenda.cancel({ name: JOB_TYPES.SCRAPE_COLLECTION });
+  // (async () => {
+  //   try {
+  //     // Cancel any existing jobs of this type
+  //     await agenda.cancel({ name: JOB_TYPES.SCRAPE_COLLECTION });
 
-      // Schedule the new recurring job
-      agenda.every('5 minutes', JOB_TYPES.SCRAPE_COLLECTION, { priority: 'low' }, {
-        timezone: 'local' // Use the server's local timezone
-      });
+  //     // Schedule the new recurring job
+  //     agenda.every('5 minutes', JOB_TYPES.SCRAPE_COLLECTION, { priority: 'low' }, {
+  //       timezone: 'local' // Use the server's local timezone
+  //     });
 
-      console.log('DEFINE_JOBS: Scheduled recurring job to get all products every 5 minutes');
-    } catch (error) {
-      console.error('DEFINE_JOBS: Error scheduling recurring job:', error);
-    }
-  })();
+  //     console.log('DEFINE_JOBS: Scheduled recurring job to get all products every 5 minutes');
+  //   } catch (error) {
+  //     console.error('DEFINE_JOBS: Error scheduling recurring job:', error);
+  //   }
+  // })();
 };
 
 // Helper function to queue a new product processing job
