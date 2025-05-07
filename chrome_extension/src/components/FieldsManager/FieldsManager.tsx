@@ -26,13 +26,6 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
             try {
                 const storedState = await getStorageState();
 
-                // Only load stored draft fields if they exist and fieldsData is not empty
-                if (storedState.draftFieldsData && fieldsData.length > 0) {
-                    setDraftFieldsData(storedState.draftFieldsData);
-                } else {
-                    setDraftFieldsData(fieldsData);
-                }
-
                 // Load stored new field if it exists
                 if (storedState.newField) {
                     setNewField(storedState.newField);
@@ -81,7 +74,7 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
 
         try {
             const { data } = await API.post('/fields', { fields: [newField] })
-            const updatedFields = [...fieldsData, { ...newField, _id: data.newId }];
+            const updatedFields = [...fieldsData, data.updatedFields[0]];
             setFieldsData(updatedFields);
 
             // Reset new field and update storage
@@ -99,7 +92,7 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
         try {
             // Use the deleteField effect from the dispatch hook instead of direct API call
             const success = await dispatch.fields.deleteField(fieldId);
-            
+
             if (success) {
                 // Update local state (the store already updated the fieldsData in the store)
                 const updatedFields = fieldsData.filter(field => field._id !== fieldId);
@@ -108,7 +101,7 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
                 // Update draft fields
                 const updatedDraft = draftFieldsData.filter(field => field._id !== fieldId);
                 setDraftFieldsData(updatedDraft);
-                
+
                 // Update draft fields storage (the fields data is already updated by the effect)
                 setStorageItem(STORAGE_KEYS.DRAFT_FIELDS_DATA, updatedDraft);
             }
