@@ -17,6 +17,7 @@ export interface LoginCredentials {
 export interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -24,7 +25,8 @@ export interface AuthState {
 // Initialize with empty state, we'll load from Chrome storage
 const initialState: AuthState = {
   user: null,
-  token: null,
+  token: null, // We'll load this asynchronously
+  refreshToken: null, // We'll load this asynchronously
   isLoading: true, // Start with loading true until we check storage
   error: null,
 };
@@ -40,13 +42,23 @@ export const auth = createModel<RootModel>()({
       return { ...state, user, error: null };
     },
     setToken(state, token: string | null) {
-      // Save token to Chrome storage
       if (token) {
-        chrome.storage.local.set({ token });
-      } else {
-        chrome.storage.local.remove('token');
+        chrome.storage.local.set({ accessToken: token });
       }
-      return { ...state, token };
+      return {
+        ...state,
+        token
+      };
+    },
+
+    setRefreshToken(state, refreshToken: string | null) {
+      if (refreshToken) {
+        chrome.storage.local.set({ refreshToken });
+      }
+      return {
+        ...state,
+        refreshToken
+      };
     },
     setLoading(state, isLoading: boolean) {
       return { ...state, isLoading };
@@ -56,8 +68,8 @@ export const auth = createModel<RootModel>()({
     },
     logout(state) {
       // Remove auth data from Chrome storage
-      chrome.storage.local.remove(['token', 'user']);
-      return { ...state, user: null, token: null, error: null };
+      chrome.storage.local.remove(['accessToken', 'refreshToken', 'user']);
+      return { ...state, user: null, token: null, refreshToken: null, error: null };
     },
   },
   effects: (dispatch) => ({
@@ -71,6 +83,7 @@ export const auth = createModel<RootModel>()({
         if (data.success) {
           dispatch.auth.setUser(data.user);
           dispatch.auth.setToken(data.accessToken);
+          dispatch.auth.setRefreshToken(data.refreshToken);
           return { success: true };
         } else {
           dispatch.auth.setError(data.message || 'Login failed');
@@ -91,19 +104,18 @@ export const auth = createModel<RootModel>()({
         dispatch.auth.setLoading(true);
 
         // First try to load from Chrome storage
-        chrome.storage.local.get(['token', 'user'], async (result) => {
-          const { token, user } = result;
+        chrome.storage.local.get(['accessToken', 'refreshToken', 'user'], async (result) => {
+          const { accessToken, refreshToken, user } = result;
 
-          if (!token) {
+          if (!accessToken) {
             // No token in storage, user is not logged in
             dispatch.auth.setLoading(false);
             return;
           }
 
-          // Set token from storage
-          dispatch.auth.setToken(token);
+          dispatch.auth.setToken(accessToken);
+          dispatch.auth.setRefreshToken(refreshToken);
 
-          // If we have a user in storage, use it first for faster UI display
           if (user) {
             try {
               const parsedUser = JSON.parse(user);

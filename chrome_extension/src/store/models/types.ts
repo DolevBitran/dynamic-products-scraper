@@ -73,6 +73,7 @@ export interface UIModel {
 export interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -91,6 +92,7 @@ export interface AuthModel {
   reducers: {
     setUser: (state: AuthState, user: User | null) => AuthState;
     setToken: (state: AuthState, token: string | null) => AuthState;
+    setRefreshToken: (state: AuthState, refreshToken: string | null) => AuthState;
     setLoading: (state: AuthState, isLoading: boolean) => AuthState;
     setError: (state: AuthState, error: string | null) => AuthState;
     logout: (state: AuthState) => AuthState;
