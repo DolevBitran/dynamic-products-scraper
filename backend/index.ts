@@ -3,6 +3,7 @@ import cors from 'cors';
 import commonRoute from './routes/common';
 import productsRoute from './routes/products';
 import fieldsRoute from './routes/fields';
+import authRoute from './routes/auth';
 import config from './config/config';
 import connectDB from './db/connect';
 import { startAgenda } from './config/agenda';
@@ -19,6 +20,7 @@ app.use(cors());
 app.use(commonRoute)
 app.use('/products', productsRoute)
 app.use('/fields', fieldsRoute)
+app.use('/auth', authRoute)
 
 const start = async () => {
     try {
