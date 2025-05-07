@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import User, { IUserDocument } from '../models/User';
+import User, { IUserDocument, ROLES } from '../models/User';
 import config from '../config/config';
 
 // Type for JWT payload
@@ -49,7 +49,7 @@ const createTokens = (user: IUserDocument): TokensResponse => {
  */
 const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, role } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -59,7 +59,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Create new user
-    const user = await User.create({ email, password, name });
+    const user = await User.create({ email, password, name, role: role || ROLES.USER });
 
     // Create tokens
     const tokens = createTokens(user);
@@ -118,7 +118,9 @@ const login = async (req: Request, res: Response): Promise<void> => {
       user: {
         id: user._id,
         email: user.email,
-        name: user.name
+        name: user.name,
+        role: user.role,
+        createdAt: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : undefined
       },
       ...tokens
     });
