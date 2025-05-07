@@ -1,15 +1,14 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch } from '@store/index';
-// Import selectors
+import Table from '@components/Table';
+import Tabs, { TabsContent, TabsList, TabsTrigger } from '@components/Tabs';
+import FieldsManager from '@components/FieldsManager';
+import Button from '@components/Button';
 import {
     selectAllFields,
     selectScrapedData,
     selectActiveTab,
 } from '@store/selectors';
-import Table from '@components/Table';
-import Tabs, { TabsContent, TabsList, TabsTrigger } from '@components/Tabs';
-import FieldsManager from '@components/FieldsManager';
-import Button from '@components/Button';
 import { ScrapeType } from '@utils/types';
 
 const Dashboard = () => {
@@ -56,7 +55,7 @@ const Dashboard = () => {
             <TabsContent value="fields" className="flex-1 overflow-hidden">
                 <FieldsManager
                     fieldsData={fieldsData}
-                    setFieldsData={(fields: Field[]) => dispatch.fields.updateFields(fields)}
+                    setFieldsData={(fields) => dispatch.fields.updateFields(fields)}
                 />
             </TabsContent>
         </Tabs>
