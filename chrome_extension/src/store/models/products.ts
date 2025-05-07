@@ -161,14 +161,14 @@ export const products = createModel<RootModel>()({
     },
     
     // Delete a product by ID
-    async deleteProduct(productId: string) {
+    async deleteProduct(productId: string, rootState: IRootState) {
       dispatch.products.setLoading(true);
       try {
         // Make API call to delete the product using URL parameter
         await API.delete(`/products/${productId}`);
         
         // Update local state after successful deletion
-        const { scrapedData } = dispatch.products.getState();
+        const { scrapedData } = rootState.products;
         const updatedProducts = scrapedData.filter((product: Product) => product._id !== productId);
         
         // Update state and storage

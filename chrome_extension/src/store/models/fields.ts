@@ -90,14 +90,14 @@ export const fields = createModel<RootModel>()({
     },
 
     // Delete a field by ID
-    async deleteField(fieldId: string) {
+    async deleteField(fieldId: string, rootState: IRootState) {
       dispatch.fields.setLoading(true);
       try {
         // Make API call to delete the field using URL parameter
         await API.delete(`/fields/${fieldId}`);
 
         // Update local state after successful deletion
-        const { fieldsData } = dispatch.fields.getState();
+        const { fieldsData } = rootState.fields;
         const updatedFields = fieldsData.filter((field: Field) => field._id !== fieldId);
 
         // Update state and storage
