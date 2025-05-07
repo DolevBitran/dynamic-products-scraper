@@ -4,6 +4,7 @@ import Product, { IProductDocument } from '../models/Product';
 import Field from '../models/Field';
 import agenda from '../config/agenda';
 import { queueProductProcessing } from '../jobs/productJobs';
+
 // Define a type for the operation structure
 type BulkOperation = {
     updateOne: {
@@ -243,8 +244,57 @@ const DeleteProduct = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
+const UpdateProduct = async (req: Request, res: Response): Promise<void> => {
+    const productId = req.params.id;
+    const productData = req.body;
+
+    try {
+        // Validate the product data
+        if (!productData) {
+            res.status(400).json({ success: false, message: 'No product data provided' });
+            return;
+        }
+
+        // Find and update the product
+        const updatedProduct = await Product.findByIdAndUpdate(
+            productId,
+            { $set: productData },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedProduct) {
+            res.status(404).json({ success: false, message: 'Product not found' });
+            return;
+        }
+
+        // Queue the updated product for processing if needed
+        try {
+            const productToProcess = JSON.parse(JSON.stringify(updatedProduct));
+            await queueProductProcessing([productToProcess]);
+            console.log('Product queued for processing after update');
+        } catch (error) {
+            console.error('Error queuing product for processing:', error);
+            // Continue even if processing fails
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Product updated successfully',
+            product: updatedProduct
+        });
+    } catch (error: any) {
+        console.error('Error updating product:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Error updating product',
+            error
+        });
+    }
+};
+
 export {
     getProducts,
     InsertAndUpdateProducts,
-    DeleteProduct
+    DeleteProduct,
+    UpdateProduct
 };

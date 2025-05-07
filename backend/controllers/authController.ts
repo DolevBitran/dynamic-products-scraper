@@ -60,7 +60,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
 
     // Create new user
     const user = await User.create({ email, password, name });
-    
+
     // Create tokens
     const tokens = createTokens(user);
 
@@ -70,7 +70,9 @@ const register = async (req: Request, res: Response): Promise<void> => {
       user: {
         id: user._id,
         email: user.email,
-        name: user.name
+        name: user.name,
+        role: user.role,
+        createdAt: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : undefined
       },
       ...tokens
     });

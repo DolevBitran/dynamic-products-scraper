@@ -24,9 +24,9 @@ const getFields = async (req: Request, res: Response) => {
         if (fieldsData.length === 0) {
             await loadFieldsFromDB();
         }
-        res.status(200).json({ success: true, count: fieldsData.length, fields: fieldsData })
+        res.status(200).json({ success: true, count: fieldsData.length, fields: fieldsData });
     } catch (error: any) {
-        console.log({ error })
+        console.log({ error });
         res.status(400).json({ error });
     }
 }
@@ -42,7 +42,7 @@ const DeleteField = async (req: Request, res: Response) => {
         // Update the fieldsData array after deletion
         await loadFieldsFromDB();
         
-        res.status(200).json({ success: true, message: 'Field deleted successfully' })
+        res.status(200).json({ success: true, message: 'Field deleted successfully' });
 
     } catch (error) {
         console.error("Error deleting document:", error);
@@ -124,8 +124,58 @@ const InsertAndUpdateFields = async (req: Request, res: Response) => {
     }
 }
 
+const UpdateField = async (req: Request, res: Response) => {
+    const fieldId = req.params.id;
+    const fieldData = req.body;
+
+    try {
+        // Validate the field data
+        if (!fieldData) {
+            res.status(400).json({ success: false, message: 'No field data provided' });
+            return;
+        }
+
+        // Find and update the field
+        const updatedField = await Field.findByIdAndUpdate(
+            fieldId,
+            {
+                $set: {
+                    fieldName: fieldData.fieldName,
+                    selector: fieldData.selector,
+                    contentType: fieldData.contentType,
+                    scrapeType: fieldData.scrapeType,
+                    isRequired: fieldData.isRequired
+                }
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedField) {
+            res.status(404).json({ success: false, message: 'Field not found' });
+            return;
+        }
+
+        // Update the fieldsData array after update
+        await loadFieldsFromDB();
+
+        res.status(200).json({
+            success: true,
+            message: 'Field updated successfully',
+            field: updatedField
+        });
+    } catch (error: any) {
+        console.error('Error updating field:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Error updating field',
+            error
+        });
+    }
+};
+
 export {
     getFields,
     InsertAndUpdateFields,
-    DeleteField
+    DeleteField,
+    UpdateField
 };
