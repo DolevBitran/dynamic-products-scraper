@@ -69,8 +69,42 @@ export interface UIModel {
 }
 
 // Define the RootModel interface that extends Models
+// Define AuthState interface
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+// Define User interface
+export interface User {
+  id: string;
+  name?: string;
+  email: string;
+  role?: string;
+}
+
+// Define AuthModel interface
+export interface AuthModel {
+  state: AuthState;
+  reducers: {
+    setUser: (state: AuthState, user: User | null) => AuthState;
+    setToken: (state: AuthState, token: string | null) => AuthState;
+    setLoading: (state: AuthState, isLoading: boolean) => AuthState;
+    setError: (state: AuthState, error: string | null) => AuthState;
+    logout: (state: AuthState) => AuthState;
+  };
+  effects: (dispatch: any) => {
+    login: (credentials: { email: string; password: string }) => Promise<{ success: boolean; error?: string }>;
+    fetchCurrentUser: () => void;
+    logoutUser: () => void;
+  };
+}
+
 export interface RootModel extends Models<RootModel> {
   fields: FieldsModel;
   products: ProductsModel;
   ui: UIModel;
+  auth: AuthModel;
 }
