@@ -223,7 +223,28 @@ const InsertAndUpdateProducts = async (req: Request, res: Response): Promise<voi
     }
 }
 
+const DeleteProduct = async (req: Request, res: Response): Promise<void> => {
+    const productId = req.params.id;
+    console.log('Product ID:', productId);
+
+    try {
+        const deletedProduct = await Product.findByIdAndDelete(productId);
+
+        if (!deletedProduct) {
+            res.status(404).json({ success: false, message: 'Product not found' });
+            return;
+        }
+
+        console.log("Product deleted successfully");
+        res.status(200).json({ success: true, message: 'Product deleted successfully' });
+    } catch (error) {
+        console.error("Error deleting product:", error);
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+};
+
 export {
     getProducts,
-    InsertAndUpdateProducts
+    InsertAndUpdateProducts,
+    DeleteProduct
 };

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
 import Button from "@components/Button";
 import Input from "@components/Input";
 import Label from "@components/Label";
@@ -6,6 +7,7 @@ import Select from "@components/Select";
 import API from "@service/api";
 import { ContentType, ScrapeType, STORAGE_KEYS } from "@utils/types";
 import { getStorageState, setStorageItem } from "@service/storage";
+import type { Dispatch } from "@store/index";
 
 interface IFieldsManagerProps {
     fieldsData: Field[];
@@ -13,6 +15,7 @@ interface IFieldsManagerProps {
 }
 
 const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
+    const dispatch = useDispatch<Dispatch>();
     const [newField, setNewField] = useState<Field>({ fieldName: '', selector: '', contentType: ContentType.TEXT, scrapeType: ScrapeType.PRODUCT });
     const [draftFieldsData, setDraftFieldsData] = useState<Field[]>([]);
     const [isInitialized, setIsInitialized] = useState(false);
@@ -94,19 +97,23 @@ const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {
     const onDeleteField = async (fieldId: string | undefined) => {
         if (!fieldId) return
         try {
-            await API.delete('/fields', {
-                data: { fieldId },
-            });
-            const updatedFields = fieldsData.filter(field => field._id !== fieldId);
-            setFieldsData(updatedFields);
+            // Use the deleteField effect from the dispatch hook instead of direct API call
+            const success = await dispatch.fields.deleteField(fieldId);
+            
+            if (success) {
+                // Update local state (the store already updated the fieldsData in the store)
+                const updatedFields = fieldsData.filter(field => field._id !== fieldId);
+                setFieldsData(updatedFields);
 
-            // Update draft fields and storage
-            const updatedDraft = draftFieldsData.filter(field => field._id !== fieldId);
-            setDraftFieldsData(updatedDraft);
-            setStorageItem(STORAGE_KEYS.FIELDS_DATA, updatedFields);
-            setStorageItem(STORAGE_KEYS.DRAFT_FIELDS_DATA, updatedDraft);
+                // Update draft fields
+                const updatedDraft = draftFieldsData.filter(field => field._id !== fieldId);
+                setDraftFieldsData(updatedDraft);
+                
+                // Update draft fields storage (the fields data is already updated by the effect)
+                setStorageItem(STORAGE_KEYS.DRAFT_FIELDS_DATA, updatedDraft);
+            }
         } catch (error) {
-            console.error(error)
+            console.error('Error deleting field:', error);
         }
     };
 

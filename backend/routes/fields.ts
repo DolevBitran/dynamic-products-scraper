@@ -7,6 +7,8 @@ const router = Router();
 router.route('/')
     .get(getFields)
     .post(InsertAndUpdateFields)
+
+router.route('/:id')
     .delete(DeleteField)
 
 export default router;

@@ -32,7 +32,7 @@ const getFields = async (req: Request, res: Response) => {
 }
 
 const DeleteField = async (req: Request, res: Response) => {
-    const { fieldId } = req.body; // This gives you the raw fieldId
+    const fieldId = req.params.id; // Get the ID from URL parameters
     console.log('Field ID:', fieldId);
 
     try {
@@ -42,7 +42,7 @@ const DeleteField = async (req: Request, res: Response) => {
         // Update the fieldsData array after deletion
         await loadFieldsFromDB();
         
-        res.status(200).json({ success: true })
+        res.status(200).json({ success: true, message: 'Field deleted successfully' })
 
     } catch (error) {
         console.error("Error deleting document:", error);

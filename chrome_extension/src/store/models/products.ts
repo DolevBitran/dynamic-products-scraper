@@ -3,6 +3,7 @@ import { RootModel } from './types';
 import { IRootState } from '@store/types';
 import { setStorageItem } from '@service/storage';
 import { STORAGE_KEYS, ScrapeType, ContentType } from '@utils/types';
+import API from '@service/api';
 
 export interface ProductsState {
   scrapedData: Product[];
@@ -157,6 +158,29 @@ export const products = createModel<RootModel>()({
           }
         );
       });
+    },
+    
+    // Delete a product by ID
+    async deleteProduct(productId: string) {
+      dispatch.products.setLoading(true);
+      try {
+        // Make API call to delete the product using URL parameter
+        await API.delete(`/products/${productId}`);
+        
+        // Update local state after successful deletion
+        const { scrapedData } = dispatch.products.getState();
+        const updatedProducts = scrapedData.filter((product: Product) => product._id !== productId);
+        
+        // Update state and storage
+        dispatch.products.setScrapedData(updatedProducts);
+        await setStorageItem(STORAGE_KEYS.SCRAPED_DATA, updatedProducts);
+        
+        return true;
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        dispatch.products.setError('Failed to delete product');
+        return false;
+      }
     },
   }),
 });

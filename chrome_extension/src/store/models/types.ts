@@ -33,6 +33,7 @@ export interface FieldsModel {
     updateFields: (fieldsData: Field[]) => Promise<Field[]>;
     getCategoryFields: (_: void, rootState: any) => Field[];
     getProductFields: (_: void, rootState: any) => Field[];
+    deleteField: (fieldId: string) => Promise<boolean>;
   };
 }
 
@@ -47,6 +48,7 @@ export interface ProductsModel {
     updateScrapedData: (payload: Product[] | { products: Product[] }, rootState: any) => Promise<Product[]>;
     handleScrapedDataMessage: (payload: any) => Promise<void>;
     initiateScraping: (payload?: { scrapeType?: any }) => void;
+    deleteProduct: (productId: string) => Promise<boolean>;
   };
 }
 
