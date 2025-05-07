@@ -72,6 +72,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
         email: user.email,
         name: user.name,
         role: user.role,
+        websites: user.websites,
         createdAt: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : undefined
       },
       ...tokens
@@ -95,8 +96,8 @@ const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Find user
-    const user = await User.findOne({ email });
+    // Find user and populate websites
+    const user = await User.findOne({ email }).populate('websites');
     if (!user) {
       res.status(401).json({ success: false, message: 'Invalid credentials' });
       return;
@@ -120,6 +121,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
         email: user.email,
         name: user.name,
         role: user.role,
+        websites: user.websites,
         createdAt: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : undefined
       },
       ...tokens
@@ -153,8 +155,8 @@ const refreshToken = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Find user
-    const user = await User.findById(payload.userId);
+    // Find user and populate websites
+    const user = await User.findById(payload.userId).populate('websites');
     if (!user) {
       res.status(401).json({ success: false, message: 'User not found' });
       return;

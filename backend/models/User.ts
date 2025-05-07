@@ -11,6 +11,7 @@ export interface IUser {
   password: string;
   name?: string;
   role?: string;
+  websites?: Types.ObjectId[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -43,6 +44,10 @@ const UserSchema = new Schema<IUserDocument>({
     enum: Object.values(ROLES),
     default: ROLES.USER
   },
+  websites: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Website'
+  }],
 }, { timestamps: true });
 
 // Hash password before saving

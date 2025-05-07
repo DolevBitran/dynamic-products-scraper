@@ -4,8 +4,8 @@ import User, { IUserDocument, ROLES } from '../models/User';
 // Get all users
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Find all users but exclude password field
-    const users = await User.find({}).select('-password');
+    // Find all users but exclude password field and populate websites
+    const users = await User.find({}).select('-password').populate('websites');
 
     // Format the response data
     const formattedUsers = users.map(user => ({
@@ -13,6 +13,7 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
       name: user.name || 'Unnamed User',
       email: user.email,
       role: `${user.role}${user._id.toString() === req.user?.userId ? '(Current User)' : ''}`,
+      websites: user.websites,
       createdAt: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : undefined
     }));
 
@@ -39,7 +40,7 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const user = await User.findById(req.user.userId).select('-password');
+    const user = await User.findById(req.user.userId).select('-password').populate('websites');
 
     if (!user) {
       res.status(404).json({ success: false, message: 'User not found' });
@@ -53,6 +54,7 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
         name: user.name || 'Unnamed User',
         email: user.email,
         role: user.role,
+        websites: user.websites,
         createdAt: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : undefined
       }
     });
@@ -104,7 +106,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
       id,
       { $set: updateData },
       { new: true, runValidators: true }
-    ).select('-password');
+    ).select('-password').populate('websites');
 
     if (!updatedUser) {
       res.status(404).json({ success: false, message: 'User not found' });
@@ -119,6 +121,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
         name: updatedUser.name || 'Unnamed User',
         email: updatedUser.email,
         role: updatedUser.role || 'User',
+        websites: updatedUser.websites,
         createdAt: updatedUser.createdAt ? new Date(updatedUser.createdAt).toISOString().split('T')[0] : undefined
       }
     });
@@ -144,7 +147,7 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
     }
 
     // Get the current user to check their role
-    const currentUser = await User.findById(req.user?.userId);
+    const currentUser = await User.findById(req.user?.userId).populate('websites');
     const isAdmin = currentUser?.role === ROLES.ADMIN;
 
     // Only allow users to delete their own account or admin to delete any account
@@ -154,7 +157,7 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
     }
 
     // Check if user exists before attempting to delete
-    const userToDelete = await User.findById(id);
+    const userToDelete = await User.findById(id).populate('websites');
     if (!userToDelete) {
       res.status(404).json({ success: false, message: 'User not found' });
       return;

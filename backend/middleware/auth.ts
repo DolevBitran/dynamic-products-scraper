@@ -39,6 +39,14 @@ const authenticateUser = async (req: Request, res: Response, next: NextFunction)
         name?: string;
         email: string;
       };
+      
+      // Get user with populated websites
+      const user = await User.findById(payload.userId).populate('websites').select('-password');
+      
+      if (!user) {
+        res.status(401).json({ success: false, message: 'User not found' });
+        return;
+      }
 
       // Attach user to request
       req.user = {

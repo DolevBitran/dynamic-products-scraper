@@ -5,6 +5,8 @@ import productsRoute from './routes/products';
 import fieldsRoute from './routes/fields';
 import authRoute from './routes/auth';
 import usersRoute from './routes/users';
+import websitesRoute from './routes/websites';
+import userWebsitesRoute from './routes/userWebsites';
 import config from './config/config';
 import connectDB from './db/connect';
 import { startAgenda } from './config/agenda';
@@ -23,6 +25,8 @@ app.use('/products', productsRoute)
 app.use('/fields', fieldsRoute)
 app.use('/auth', authRoute)
 app.use('/users', usersRoute)
+app.use('/websites', websitesRoute)
+app.use('/users', userWebsitesRoute)
 
 const start = async () => {
     try {
