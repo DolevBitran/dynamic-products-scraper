@@ -11,6 +11,8 @@ import {
 import Button from "@components/Button";
 import API from "@service/api";
 import { ContentType, STORAGE_KEYS } from "@utils/types";
+import { useDispatch } from "react-redux";
+import { Dispatch } from "@store/index";
 import { setStorageItem } from "@service/storage";
 
 interface IResultsTableProps {
@@ -19,6 +21,7 @@ interface IResultsTableProps {
 }
 
 const ResultsTable = ({ data, fields }: IResultsTableProps) => {
+    const dispatch = useDispatch<Dispatch>();
     const [searchTerm, _setSearchTerm] = useState("");
     const [sortConfig, setSortConfig] = useState<{
         key: keyof Product | null;
@@ -105,6 +108,26 @@ const ResultsTable = ({ data, fields }: IResultsTableProps) => {
         console.log(res)
     }
 
+    const onRemoveSelected = async () => {
+        // Get indices of selected rows
+        const selectedIndices = [...selectedRows].sort((a, b) => b - a); // Sort in descending order
+
+        // Create a copy of the filtered data
+        const updatedData = [...filteredData];
+
+        // Remove selected rows from the data (starting from the end to avoid index shifting)
+        selectedIndices.forEach(index => {
+            updatedData.splice(index, 1);
+        });
+
+        // Update the state and storage
+        dispatch.products.setScrapedData(updatedData);
+        await setStorageItem(STORAGE_KEYS.SCRAPED_DATA, updatedData);
+
+        // Clear selection
+        setSelectedRows([]);
+    }
+
     return (
         <div className="flex flex-col h-full">
             <div className="flex-1 overflow-auto">
@@ -158,6 +181,14 @@ const ResultsTable = ({ data, fields }: IResultsTableProps) => {
 
             <div className="p-3 border-t flex justify-between items-center text-sm text-gray-500">
                 <span>{filteredData.length} products found</span>
+                <div className="flex space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={!selectedRows.length}
+                        onClick={onRemoveSelected}
+                        className="bg-gray-500 hover:bg-gray-600 text-white"
+                    >Remove</Button>
                     <Button
                         variant="outline"
                         size="sm"
