@@ -12,7 +12,10 @@ export default defineConfig({
       '@background': path.resolve(__dirname, './src/background'),
       '@assets': path.resolve(__dirname, './src/assets'),
       '@service': path.resolve(__dirname, './src/service'),
-      '@utils': path.resolve(__dirname, './src/utils')
+      '@utils': path.resolve(__dirname, './src/utils'),
+      '@store': path.resolve(__dirname, './src/store'),
+      '@views': path.resolve(__dirname, './src/views'),
+      '@styles': path.resolve(__dirname, './src/styles')
     },
   },
   plugins: [

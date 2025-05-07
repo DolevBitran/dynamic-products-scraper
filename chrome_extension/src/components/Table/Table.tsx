@@ -10,7 +10,8 @@ import {
 } from "./TableContent";
 import Button from "@components/Button";
 import API from "@service/api";
-import { ContentType } from "@utils/types";
+import { ContentType, STORAGE_KEYS } from "@utils/types";
+import { setStorageItem } from "@service/storage";
 
 interface IResultsTableProps {
     data: Product[];
@@ -157,13 +158,14 @@ const ResultsTable = ({ data, fields }: IResultsTableProps) => {
 
             <div className="p-3 border-t flex justify-between items-center text-sm text-gray-500">
                 <span>{filteredData.length} products found</span>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={!selectedRows.length}
-                    onClick={onSaveResults}
-                    className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
-                >Save to DB</Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={!selectedRows.length}
+                        onClick={onSaveResults}
+                        className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
+                    >Save to DB</Button>
+                </div>
             </div>
         </div>
     )

@@ -9,7 +9,7 @@ import { getStorageState, setStorageItem } from "@service/storage";
 
 interface IFieldsManagerProps {
     fieldsData: Field[];
-    setFieldsData: React.Dispatch<React.SetStateAction<Field[]>>;
+    setFieldsData: (fields: Field[]) => void;
 }
 
 const FieldsManager = ({ fieldsData, setFieldsData }: IFieldsManagerProps) => {

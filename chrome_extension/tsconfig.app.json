@@ -28,7 +28,10 @@
       "@background/*": ["src/background/*"],
       "@assets/*": ["src/assets/*"],
       "@service/*": ["src/service/*"],
-      "@utils/*": ["src/utils/*"]
+      "@utils/*": ["src/utils/*"],
+      "@store/*": ["src/store/*"],
+      "@views/*": ["src/views/*"],
+      "@styles/*": ["src/styles/*"]
     }
   },
   "include": ["src"]
