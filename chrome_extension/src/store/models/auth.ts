@@ -2,11 +2,21 @@ import { createModel } from '@rematch/core';
 import type { RootModel } from './types';
 import api from '@service/api';
 
+export interface Website {
+  id: string;
+  name: string;
+  url: string;
+  status: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface User {
   id: string;
   name?: string;
   email: string;
   role?: string;
+  websites?: Website[];
 }
 
 export interface LoginCredentials {
@@ -103,9 +113,9 @@ export const auth = createModel<RootModel>()({
       try {
         dispatch.auth.setLoading(true);
 
-        // First try to load from Chrome storage
-        chrome.storage.local.get(['accessToken', 'refreshToken', 'user'], async (result) => {
-          const { accessToken, refreshToken, user } = result;
+        // Load tokens from Chrome storage
+        chrome.storage.local.get(['accessToken', 'refreshToken'], async (result) => {
+          const { accessToken, refreshToken } = result;
 
           if (!accessToken) {
             // No token in storage, user is not logged in
@@ -116,20 +126,14 @@ export const auth = createModel<RootModel>()({
           dispatch.auth.setToken(accessToken);
           dispatch.auth.setRefreshToken(refreshToken);
 
-          if (user) {
-            try {
-              const parsedUser = JSON.parse(user);
-              dispatch.auth.setUser(parsedUser);
-            } catch (e) {
-              console.error('Error parsing stored user:', e);
-            }
-          }
-
-          // Then verify with the server
+          // Always fetch the latest user data from the server
+          // This ensures any changes made through the admin panel (like adding websites)
+          // are reflected in the Chrome extension
           try {
             const { data } = await api.get('/auth/me');
 
             if (data.success) {
+              console.log('Fetched updated user data:', data.user);
               // Update user data from server
               dispatch.auth.setUser(data.user);
             } else {
