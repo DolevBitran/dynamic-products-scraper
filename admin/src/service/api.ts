@@ -47,7 +47,7 @@ API.interceptors.response.use(
 
         // If error is not 401 or request has already been retried, reject
         if (error.response?.status !== 401 || originalRequest._retry) {
-            return Promise.reject(error);
+            return Promise.reject({ ...error, message: error.response?.data.error || error.message });
         }
 
         // Mark this request as retried to prevent infinite loops
@@ -66,7 +66,6 @@ API.interceptors.response.use(
                 })
                 .catch(err => Promise.reject(err));
         }
-
         isRefreshing = true;
 
         try {
