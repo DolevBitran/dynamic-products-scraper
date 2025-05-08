@@ -6,6 +6,7 @@ import type { Dispatch } from '@store/index';
 import type { Website } from '@store/models/websites';
 import type { User, Website as UserWebsite } from '@store/models/users';
 import { selectUsers } from '@store/selectors/users';
+import { selectProductCountByWebsite } from '@store/selectors/products';
 import { WebsiteStatus } from '@store/models/websites';
 
 interface WebsitesTableProps {
@@ -15,6 +16,7 @@ interface WebsitesTableProps {
 const WebsitesTable: React.FC<WebsitesTableProps> = ({ websites }) => {
   const dispatch = useDispatch<Dispatch>();
   const users = useSelector(selectUsers);
+  const getProductCount = useSelector(selectProductCountByWebsite);
   const [selectedWebsite, setSelectedWebsite] = useState<Website | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -128,6 +130,11 @@ const WebsitesTable: React.FC<WebsitesTableProps> = ({ websites }) => {
     );
   };
 
+  // Count products associated with a website using the selector
+  const getProductCountForWebsite = (websiteId: string): number => {
+    return getProductCount(websiteId);
+  };
+
   return (
     <div className="table-section">
       {selectedWebsite && (
@@ -153,6 +160,7 @@ const WebsitesTable: React.FC<WebsitesTableProps> = ({ websites }) => {
             <th>URL</th>
             <th>Status</th>
             <th>Holders</th>
+            <th>Products</th>
             <th>Created</th>
             <th>Actions</th>
           </tr>
@@ -269,6 +277,11 @@ const WebsitesTable: React.FC<WebsitesTableProps> = ({ websites }) => {
                         </div>
                       )}
                     </div>
+                  </div>
+                </td>
+                <td>
+                  <div className="product-count">
+                    {getProductCountForWebsite(website.id)}
                   </div>
                 </td>
                 <td>{new Date(website.createdAt).toLocaleDateString()}</td>

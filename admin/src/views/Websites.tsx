@@ -7,16 +7,19 @@ import WebsitesTable from '@components/Dashboard/WebsitesTable';
 import WebsiteModal from '@components/Dashboard/WebsiteModal';
 import { selectUsers } from '@store/selectors/users';
 import Loading from '@components/Loading/Loading';
+import { selectProducts } from '@store/selectors';
 
 const Websites: React.FC = () => {
   const dispatch = useDispatch<Dispatch>();
   const { websites, isLoading, error } = useSelector(selectWebsitesState);
   const users = useSelector(selectUsers);
+  const products = useSelector(selectProducts);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     !websites?.length && dispatch.websites.fetchWebsites();
     !users?.length && dispatch.users.fetchUsers();
+    !products?.length && dispatch.products.fetchProducts();
   }, [dispatch.websites]);
 
   const handleAddWebsite = () => {
