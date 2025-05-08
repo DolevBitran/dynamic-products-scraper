@@ -83,8 +83,7 @@ const createWebsite = async (req: Request, res: Response): Promise<void> => {
 
         const website = await Website.create({
             name,
-            url,
-            status: STATUS.ACTIVE
+            url
         });
 
         res.status(201).json({

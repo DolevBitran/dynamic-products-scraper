@@ -30,7 +30,7 @@ const WebsiteSchema = new Schema({
     },
     status: {
         type: Number,
-        enum: Object.values(STATUS),
+        enum: [STATUS.ACTIVE, STATUS.INACTIVE], // Explicitly list the enum values
         default: STATUS.ACTIVE,
     },
 }, {
