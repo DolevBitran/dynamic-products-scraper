@@ -72,7 +72,7 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, email, role } = req.body;
+    const { name, email, role, websites } = req.body;
 
     // Check if user is updating their own profile or is an admin
     if (id !== req.user?.userId) {
@@ -97,10 +97,24 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
     }
 
     // Create update object with only the fields that are provided
-    const updateData: { name?: string; email?: string; role?: string } = {};
+    const updateData: { name?: string; email?: string; role?: string; websites?: string[] } = {};
     if (name !== undefined) updateData.name = name;
     if (email !== undefined) updateData.email = email;
     if (role !== undefined) updateData.role = role;
+
+    // Handle websites update with duplicate check
+    if (websites !== undefined) {
+      const uniqueWebsites = [...new Set(websites.map((id: string) => id.toString()))];
+
+      if (uniqueWebsites.length < websites.length) {
+        console.log('Duplicate websites detected in input and filtered out');
+        res.status(400).json({ success: false, message: 'The website already exists for the user' });
+        return;
+      }
+      
+      updateData.websites = uniqueWebsites as string[];
+      console.log('Setting websites to:', updateData.websites);
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       id,
