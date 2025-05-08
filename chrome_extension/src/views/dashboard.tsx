@@ -4,10 +4,13 @@ import Table from '@components/Table';
 import Tabs, { TabsContent, TabsList, TabsTrigger } from '@components/Tabs';
 import FieldsManager from '@components/FieldsManager';
 import Button from '@components/Button';
+import WebsiteList from '@components/WebsiteList/WebsiteList';
+import { User } from '@store/models/auth';
 import {
     selectAllFields,
     selectScrapedData,
     selectActiveTab,
+    selectUser,
 } from '@store/selectors';
 import { ScrapeType } from '@utils/types';
 
@@ -18,6 +21,7 @@ const Dashboard = () => {
     const fieldsData: Field[] = useSelector(selectAllFields)
     const scrapedData: Product[] = useSelector(selectScrapedData)
     const activeTab: string = useSelector(selectActiveTab)
+    const user: User | null = useSelector(selectUser)
 
     const initiateScraping = (scrapeType: ScrapeType = ScrapeType.CATEGORY) => {
         dispatch.products.initiateScraping({ scrapeType });
@@ -36,7 +40,8 @@ const Dashboard = () => {
             </TabsList>
 
             <TabsContent value="main" className="flex-1 flex flex-col justify-center px-6">
-                <div className="card">
+                <div className="card flex flex-col">
+                    {user?.websites && <WebsiteList websites={user.websites} />}
                     <Button
                         className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white mb-3"
                         onClick={() => initiateScraping(ScrapeType.CATEGORY)}

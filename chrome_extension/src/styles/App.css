@@ -85,3 +85,21 @@ button[data-state="active"] {
   color: hsl(var(--foreground));
   background-color: hsl(var(--background));
 }
+
+.website-status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 10px;
+  flex-shrink: 0;
+  background-color: #3b82f6;
+}
+
+.website-status-indicator.active {
+  background-color: #10b981;
+}
+
+.website-status-indicator.inactive {
+  background-color: #b91010;
+}

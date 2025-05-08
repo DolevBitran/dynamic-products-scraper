@@ -6,7 +6,7 @@ export interface Website {
   id: string;
   name: string;
   url: string;
-  status: string;
+  status: number;
   createdAt?: string;
   updatedAt?: string;
 }
