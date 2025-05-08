@@ -2,7 +2,7 @@ import { createModel } from '@rematch/core';
 import { RootModel } from './types';
 import { IRootState } from '@store/types';
 import { setStorageItem } from '@service/storage';
-import { STORAGE_KEYS, ScrapeType, ContentType } from '@utils/types';
+import { STORAGE_KEYS, ScrapeType, ContentType } from '@utils/constants';
 import API from '@service/api';
 
 export interface ProductsState {

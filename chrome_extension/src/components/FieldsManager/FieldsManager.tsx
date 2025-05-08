@@ -5,7 +5,7 @@ import Input from "@components/Input";
 import Label from "@components/Label";
 import Select from "@components/Select";
 import API from "@service/api";
-import { ContentType, ScrapeType, STORAGE_KEYS } from "@utils/types";
+import { ContentType, ScrapeType, STORAGE_KEYS } from "@utils/constants";
 import { getStorageState, setStorageItem } from "@service/storage";
 import type { Dispatch } from "@store/index";
 

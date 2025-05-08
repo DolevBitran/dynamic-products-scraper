@@ -12,7 +12,7 @@ import {
     selectActiveTab,
     selectUser,
 } from '@store/selectors';
-import { ScrapeType } from '@utils/types';
+import { ScrapeType } from '@utils/constants';
 
 const Dashboard = () => {
     const dispatch = useDispatch<Dispatch>();

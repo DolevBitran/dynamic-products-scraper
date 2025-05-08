@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from "@utils/types";
+import { STORAGE_KEYS } from "@utils/constants";
 
 // Get all state from storage
 export const getStorageState = async (): Promise<StorageState> => {

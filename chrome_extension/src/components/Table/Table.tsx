@@ -10,7 +10,7 @@ import {
 } from "./TableContent";
 import Button from "@components/Button";
 import API from "@service/api";
-import { ContentType, STORAGE_KEYS } from "@utils/types";
+import { ContentType, STORAGE_KEYS } from "@utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { Dispatch } from "@store/index";
 import { setStorageItem } from "@service/storage";

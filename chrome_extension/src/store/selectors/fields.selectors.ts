@@ -1,5 +1,5 @@
 import { RootState } from '../index';
-import { ScrapeType } from '@utils/types';
+import { ScrapeType } from '@utils/constants';
 
 // Get all fields
 export const selectAllFields = (state: RootState): Field[] => 

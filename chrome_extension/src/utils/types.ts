@@ -1,21 +1,4 @@
-export enum ContentType {
-    TEXT = 'text',
-    LINK = 'link',
-    IMAGE = 'image',
-}
-
-export enum ScrapeType {
-    CATEGORY = 'category',
-    PRODUCT = 'product',
-}
-
-export const STORAGE_KEYS = {
-    SCRAPED_DATA: 'scrapedData',
-    FIELDS_DATA: 'fieldsData',
-    ACTIVE_TAB: 'activeTab',
-    DRAFT_FIELDS_DATA: 'draftFieldsData',
-    NEW_FIELD: 'newField',
-} as const;
+import { ContentType, ScrapeType, STORAGE_KEYS } from './constants';
 
 declare global {
     /*~ Here, declare things that go in the global namespace, or augment

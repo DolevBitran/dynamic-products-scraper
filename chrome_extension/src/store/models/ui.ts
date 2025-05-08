@@ -2,7 +2,7 @@ import { createModel } from '@rematch/core';
 import { RootModel } from './types';
 import { IRootState } from '@store/types';
 import { getStorageState, setStorageItem } from '@service/storage';
-import { STORAGE_KEYS } from '@utils/types';
+import { STORAGE_KEYS } from '@utils/constants';
 
 export interface UIState {
   activeTab: string;

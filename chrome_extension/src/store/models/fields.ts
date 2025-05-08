@@ -3,7 +3,7 @@ import { RootModel } from './types';
 import { IRootState } from '@store/types';
 import API from '@service/api';
 import { setStorageItem } from '@service/storage';
-import { STORAGE_KEYS, ScrapeType } from '@utils/types';
+import { STORAGE_KEYS, ScrapeType } from '@utils/constants';
 
 export interface FieldsState {
   fieldsData: Field[];
