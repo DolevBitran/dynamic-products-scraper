@@ -138,8 +138,6 @@ const updateWebsite = async (req: Request, res: Response): Promise<void> => {
             {
                 name: name || website.name,
                 url: url || website.url,
-                description: description !== undefined ? description : website.description,
-                logo: logo !== undefined ? logo : website.logo,
                 status: status || website.status
             },
             { new: true, runValidators: true }

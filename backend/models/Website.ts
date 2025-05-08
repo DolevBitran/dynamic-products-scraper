@@ -9,8 +9,6 @@ export interface IWebsite {
     name: string;
     url: string;
     status: STATUS;
-    description?: string;
-    logo?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
