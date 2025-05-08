@@ -36,7 +36,7 @@ const AppContent = () => {
   return (
     <Routes>
       <Route path="/login" element={<AuthRedirect><Login /></AuthRedirect>} />
-      <Route path="/register" element={<AuthRedirect><Register /></AuthRedirect>} />
+      {/* <Route path="/register" element={<AuthRedirect><Register /></AuthRedirect>} /> */}
 
       {/* Protected Dashboard Routes */}
       <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
