@@ -1,9 +1,15 @@
-import mongoose, { Schema, model, Document } from 'mongoose';
+import mongoose, { Schema, model, Document, Types } from 'mongoose';
 
 interface IProduct {
+    websites?: Types.ObjectId[];
 }
 
 const ProductSchema = new Schema<IProduct>({
+    websites: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Website',
+        required: true,
+    }],
 }, {
     timestamps: true,
     strict: false,
