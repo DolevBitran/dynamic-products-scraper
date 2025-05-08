@@ -3,10 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Dispatch } from '@store/index';
 import { selectIsLoading, selectError } from '@store/selectors';
-import Button from '@components/Button/Button';
-import Input from '@components/Input/Input';
-import Label from '@components/Label/Label';
 import Loading from '@components/Loading/Loading';
+import '@styles/Login.css';
 
 const Login = () => {
   const dispatch = useDispatch<Dispatch>();
@@ -20,12 +18,31 @@ const Login = () => {
     password: '',
   });
 
+  const [passwordValidation, setPasswordValidation] = useState({
+    hasLowercase: false,
+    hasUppercase: false,
+    hasNumber: false,
+    hasSpecial: false,
+    hasMinLength: false
+  });
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCredentials((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    // Update password validation when password changes
+    if (name === 'password') {
+      setPasswordValidation({
+        hasLowercase: /[a-z]/.test(value),
+        hasUppercase: /[A-Z]/.test(value),
+        hasNumber: /[0-9]/.test(value),
+        hasSpecial: /[^A-Za-z0-9]/.test(value),
+        hasMinLength: value.length >= 8
+      });
+    }
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -41,70 +58,102 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
-        </div>
+    <div className="login-container">
+      <div className="login-box">
+        <h2 className="login-title">Sign in to your account</h2>
+        <p className="login-subtitle">Enter your email and password to access your account</p>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <div className="error-message">
             {error}
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={onSubmit}>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={credentials.email}
-                onChange={onChange}
-                className="mt-1"
-              />
+        <form className="login-form" onSubmit={onSubmit}>
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={credentials.email}
+              onChange={onChange}
+              className="form-input"
+              placeholder="your.email@example.com"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={credentials.password}
+              onChange={onChange}
+              className="form-input"
+              placeholder="••••••••"
+            />
+          </div>
+
+          {credentials.password.length > 0 && (
+            <div className="password-requirements">
+              <div className="requirement">
+                <div className={`requirement-icon ${passwordValidation.hasLowercase ? 'valid' : ''}`}>
+                  {passwordValidation.hasLowercase && '✓'}
+                </div>
+                <span className="requirement-text">one lowercase character</span>
+              </div>
+              <div className="requirement">
+                <div className={`requirement-icon ${passwordValidation.hasUppercase ? 'valid' : ''}`}>
+                  {passwordValidation.hasUppercase && '✓'}
+                </div>
+                <span className="requirement-text">one uppercase character</span>
+              </div>
+              <div className="requirement">
+                <div className={`requirement-icon ${passwordValidation.hasNumber ? 'valid' : ''}`}>
+                  {passwordValidation.hasNumber && '✓'}
+                </div>
+                <span className="requirement-text">one number</span>
+              </div>
+              <div className="requirement">
+                <div className={`requirement-icon ${passwordValidation.hasSpecial ? 'valid' : ''}`}>
+                  {passwordValidation.hasSpecial && '✓'}
+                </div>
+                <span className="requirement-text">one special character</span>
+              </div>
+              <div className="requirement">
+                <div className={`requirement-icon ${passwordValidation.hasMinLength ? 'valid' : ''}`}>
+                  {passwordValidation.hasMinLength && '✓'}
+                </div>
+                <span className="requirement-text">8 character minimum</span>
+              </div>
             </div>
+          )}
 
-            <div>
-              <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={credentials.password}
-                onChange={onChange}
-                className="mt-1"
-              />
-            </div>
-          </div>
-
-          <div>
-            <Button
-              type="submit"
-              className="w-full bg-primary text-white"
-              disabled={isLoading}
-            >
-              Sign in
-            </Button>
-          </div>
-
-          <div className="text-center text-sm">
-            <span className="text-gray-600">Don't have an account? </span>
-            <Link to="/register" className="text-primary hover:underline">
-              Register
-            </Link>
-          </div>
+          <button
+            type="submit"
+            className="login-button"
+            disabled={isLoading}
+          >
+            Sign in
+          </button>
         </form>
+
+        <Link to="/" className="back-link">
+          <svg xmlns="http://www.w3.org/2000/svg" className="back-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+          </svg>
+          Back to login
+        </Link>
       </div>
     </div>
   );

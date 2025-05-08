@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import Button from '@components/Button/Button';
 import type { Dispatch } from '@store/index';
 import type { CreateUserData, User } from '@store/models/users';
 import { ROLES } from '@utils/constants';
+import '@styles/UserModal.css';
 
 interface UserModalProps {
   isOpen: boolean;
@@ -138,111 +138,113 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-container">
-        <div className="modal-header">
-          <h2>{mode === 'create' ? 'Add New User' : 'Edit User'}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
+    <div className="user-modal-overlay">
+      <div className="user-modal-container">
+        <h2 className="user-modal-title">{mode === 'create' ? 'Add New User' : 'Edit User'}</h2>
+        <p className="user-modal-subtitle">
+          {mode === 'create'
+            ? 'Enter the details for the new user account'
+            : 'Update the user information'}
+        </p>
 
-        <div className="modal-body">
-          {error && (
-            <div className="error-message">
-              <strong>Error:</strong> {error}
-            </div>
-          )}
+        {error && (
+          <div className="user-modal-error">
+            {error}
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="name">Name</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Full Name"
-                className="form-input"
-              />
-            </div>
+        <form className="user-modal-form" onSubmit={handleSubmit}>
+          <div className="user-form-group">
+            <label htmlFor="name" className="user-form-label">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Full Name"
+              className="user-form-input"
+            />
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="email">Email *</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="email@example.com"
-                required
-                className="form-input"
-              />
-            </div>
+          <div className="user-form-group">
+            <label htmlFor="email" className="user-form-label">Email address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="email@example.com"
+              required
+              className="user-form-input"
+            />
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="password">Password *</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••••••"
-                required
-                className="form-input"
-              />
-            </div>
+          <div className="user-form-group">
+            <label htmlFor="password" className="user-form-label">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="••••••••••••"
+              required={mode === 'create'}
+              className="user-form-input"
+            />
+            {mode === 'edit' && (
+              <p className="password-validation-hint">Leave blank to keep current password</p>
+            )}
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password *</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="••••••••••••"
-                required
-                className="form-input"
-              />
-            </div>
+          <div className="user-form-group">
+            <label htmlFor="confirmPassword" className="user-form-label">Confirm Password</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="••••••••••••"
+              required={mode === 'create' || formData.password.length > 0}
+              className="user-form-input"
+            />
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="role">Role</label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="form-input"
-              >
-                <option value={ROLES.USER}>User</option>
-                <option value={ROLES.ADMIN}>Admin</option>
-              </select>
-            </div>
+          <div className="user-form-group">
+            <label htmlFor="role" className="user-form-label">Role</label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="user-form-select"
+            >
+              <option value={ROLES.USER}>User</option>
+              <option value={ROLES.ADMIN}>Admin</option>
+            </select>
+          </div>
 
-            <div className="form-actions">
-              <Button
-                type="button"
-                onClick={onClose}
-                variant="outline"
-                className="cancel-button"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-blue-500 text-white hover:bg-blue-600"
-              >
-                {isSubmitting
-                  ? (mode === 'create' ? 'Creating...' : 'Updating...')
-                  : (mode === 'create' ? 'Create User' : 'Update User')}
-              </Button>
-            </div>
-          </form>
-        </div>
+          <div className="user-modal-buttons">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="user-modal-button"
+            >
+              {isSubmitting
+                ? (mode === 'create' ? 'Creating...' : 'Updating...')
+                : (mode === 'create' ? 'Create User' : 'Update User')}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="user-modal-button-secondary"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
