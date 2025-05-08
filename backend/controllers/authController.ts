@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User, { IUserDocument, ROLES } from '../models/User';
+import { IWebsiteDocument } from '../models/Website';
 import config from '../config/config';
 
 // Type for JWT payload
@@ -8,6 +9,7 @@ interface TokenPayload {
   userId: string;
   name?: string;
   email: string;
+  websites?: IWebsiteDocument[];
 }
 
 // Type for tokens response
@@ -24,7 +26,8 @@ const createTokens = (user: IUserDocument): TokensResponse => {
   const payload: TokenPayload = {
     userId: user._id.toString(),
     name: user.name,
-    email: user.email
+    email: user.email,
+    websites: user.websites as unknown as IWebsiteDocument[]
   };
 
   // Create access token

@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
 import User from '../models/User';
+import { IWebsiteDocument } from '../models/Website';
+import mongoose from 'mongoose';
 
 // Extend Express Request interface to include user property
 declare global {
@@ -11,6 +13,7 @@ declare global {
         userId: string;
         name?: string;
         email: string;
+        websites: IWebsiteDocument[];
       };
     }
   }
@@ -34,25 +37,33 @@ const authenticateUser = async (req: Request, res: Response, next: NextFunction)
 
     try {
       // Verify token
-      const payload = jwt.verify(token, config.JWT_SECRET) as {
-        userId: string;
-        name?: string;
-        email: string;
-      };
-      
+      const payload = jwt.verify(token, config.JWT_SECRET) as Express.Request['user'];
+
+      if (!payload) {
+        res.status(401).json({ success: false, message: 'Authentication invalid or expired' });
+        return;
+      }
+
       // Get user with populated websites
       const user = await User.findById(payload.userId).populate('websites').select('-password');
-      
+
       if (!user) {
         res.status(401).json({ success: false, message: 'User not found' });
         return;
       }
 
+      // After population, user.websites contains full Website documents, not just ObjectIds
+      // Two-step type assertion with 'unknown' as recommended by TypeScript
+      const populatedWebsites = user.websites ?
+        (user.websites as unknown as IWebsiteDocument[]) :
+        [];
+
       // Attach user to request
       req.user = {
         userId: payload.userId,
         name: payload.name,
-        email: payload.email
+        email: payload.email,
+        websites: populatedWebsites
       };
 
       next();
