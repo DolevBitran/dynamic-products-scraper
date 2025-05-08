@@ -66,6 +66,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) =>
                 <span>Users</span>
               </li>
             </Link>
+            <Link to="/websites" style={{ textDecoration: 'none' }}>
+              <li
+                className={`menu-item ${activeSection === 'websites' ? 'active' : ''}`}
+                onClick={() => setActiveSection('websites')}
+              >
+                <span className="menu-item-icon">🌐</span>
+                <span>Websites</span>
+              </li>
+            </Link>
           </ul>
         </div>
 

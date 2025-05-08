@@ -5,8 +5,9 @@ import { auth } from '@store/models/auth';
 import { fields } from '@store/models/fields';
 import { products } from '@store/models/products';
 import { users } from '@store/models/users';
+import { websites } from '@store/models/websites';
 
-const models: RootModel = { auth, fields, products, users };
+const models: RootModel = { auth, fields, products, users, websites };
 
 export const store = init({
   models,

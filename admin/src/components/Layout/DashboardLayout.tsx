@@ -46,6 +46,11 @@ const DashboardLayout: React.FC = () => {
           title: 'Fields',
           subtitle: 'Manage your scraping fields'
         };
+      case 'websites':
+        return {
+          title: 'Websites',
+          subtitle: 'Manage your website configurations'
+        };
       case 'categories':
         return {
           title: 'Categories',

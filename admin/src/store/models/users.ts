@@ -3,11 +3,22 @@ import type { RootModel } from '.';
 import api from '@service/api';
 
 export interface User {
-  id: string;
+  id: string; // Object ID from the backend
+  userId?: string;
   name: string;
   email: string;
   role?: string;
   createdAt?: string;
+  websites?: Website[]; // Array of website IDs
+}
+
+export interface Website {
+  id: string;
+  name: string;
+  url: string;
+  status: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Extended interface for creating users that includes password
@@ -45,7 +56,7 @@ export const users = createModel<RootModel>()({
     addUser(state, user: User) {
       return { ...state, users: [...state.users, user] };
     },
-    updateUser(state, updatedUser: User) {
+    setUser(state, updatedUser: User) {
       return {
         ...state,
         users: state.users.map(user =>
@@ -83,7 +94,7 @@ export const users = createModel<RootModel>()({
         const response = await api.post('/auth/register', userData);
         console.log({ newUser: response.data.user })
         if (response.data.success) {
-          dispatch.users.addUser(response.data.user);
+          dispatch.users.setUser(response.data.user);
           return { success: true, user: response.data.user };
         } else {
           dispatch.users.setError(response.data.message || 'Failed to create user');
@@ -110,10 +121,10 @@ export const users = createModel<RootModel>()({
     async updateUser(userData: User) {
       try {
         dispatch.users.setLoading(true);
-        const response = await api.put(`/users/${userData.id}`, userData);
+        const response = await api.put(`/users/${userData.id}`, { ...userData, websites: userData.websites?.map((website: Website) => website.id.toString()) });
 
         if (response.data.success) {
-          dispatch.users.updateUser(response.data.user);
+          dispatch.users.setUser(response.data.user);
           return { success: true, user: response.data.user };
         } else {
           dispatch.users.setError(response.data.message || 'Failed to update user');

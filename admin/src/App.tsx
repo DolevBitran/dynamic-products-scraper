@@ -15,6 +15,7 @@ import Register from '@views/Register'
 import Products from '@views/Products'
 import Fields from '@views/Fields'
 import Users from '@views/Users'
+import Websites from '@views/Websites'
 
 // Layout
 import DashboardLayout from '@components/Layout/DashboardLayout'
@@ -43,6 +44,7 @@ const AppContent = () => {
         <Route path="products" element={<Products />} />
         <Route path="fields" element={<Fields />} />
         <Route path="users" element={<Users />} />
+        <Route path="websites" element={<Websites />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
