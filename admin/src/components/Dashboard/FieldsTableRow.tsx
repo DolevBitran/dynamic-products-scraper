@@ -13,7 +13,6 @@ interface FieldsTableRowProps {
 
 const FieldsTableRow: React.FC<FieldsTableRowProps> = ({
   field,
-  isFieldEditable,
   hasChanged,
   onContentChange,
   onSave,
