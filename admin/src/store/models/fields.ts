@@ -23,6 +23,14 @@ export const fields = createModel<RootModel>()({
         fields: payload,
       };
     },
+    setField(state, payload: Field) {
+      return {
+        ...state,
+        fields: state.fields.map(field =>
+          field.id === payload.id ? payload : field
+        ),
+      };
+    },
     setLoading(state, payload: boolean) {
       return {
         ...state,
@@ -51,7 +59,7 @@ export const fields = createModel<RootModel>()({
         ),
       };
     },
-    deleteField(state, payload: string) {
+    removeField(state, payload: string) {
       return {
         ...state,
         fields: state.fields.filter(field => field.id !== payload),
@@ -77,7 +85,8 @@ export const fields = createModel<RootModel>()({
       dispatch.fields.setLoading(true);
       try {
         const { data } = await API.post('/fields', fieldData);
-        dispatch.fields.addField(data);
+        console.log({ data })
+        data.updatedFields[0] && dispatch.fields.addField(data.updatedFields[0]);
         return data;
       } catch (error: any) {
         const errorMessage = error.response?.data?.message || 'Failed to create field';
@@ -90,7 +99,7 @@ export const fields = createModel<RootModel>()({
       dispatch.fields.setLoading(true);
       try {
         const { data } = await API.put(`/fields/${fieldData.id}`, fieldData);
-        dispatch.fields.updateField(data);
+        dispatch.fields.setField(data);
         return data;
       } catch (error: any) {
         const errorMessage = error.response?.data?.message || 'Failed to update field';
@@ -103,7 +112,7 @@ export const fields = createModel<RootModel>()({
       dispatch.fields.setLoading(true);
       try {
         await API.delete(`/fields/${fieldId}`);
-        dispatch.fields.deleteField(fieldId);
+        dispatch.fields.removeField(fieldId);
         return true;
       } catch (error: any) {
         const errorMessage = error.response?.data?.message || 'Failed to delete field';
