@@ -12,14 +12,8 @@ const Fields: React.FC = () => {
     !fields?.length && dispatch.fields.fetchFields();
   }, [dispatch.fields]);
 
-
-  const handleAddField = () => {
-    // Implement add field functionality
-    console.log('Add field clicked');
-  };
-
   return (
-    <FieldsView onAddField={handleAddField} />
+    <FieldsView />
   );
 };
 
