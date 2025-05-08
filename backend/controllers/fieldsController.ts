@@ -51,15 +51,24 @@ const DeleteField = async (req: Request, res: Response) => {
 }
 
 const InsertAndUpdateFields = async (req: Request, res: Response) => {
-    const { fields } = req.body
+    // Handle both single field objects and arrays of fields
+    let fieldsArray: any[] = [];
+    
+    if (req.body.fields) {
+        // If fields is provided as an array
+        fieldsArray = req.body.fields;
+    } else {
+        // If a single field object is provided
+        fieldsArray = [req.body];
+    }
 
     try {
         // Define a type that extends IField to include _id for the controller context
         type FieldWithId = IField & { _id?: string };
 
         // Handle fields with _id separately from new fields
-        const existingFields = fields.filter((field: FieldWithId) => field._id);
-        const newFields = fields.filter((field: FieldWithId) => !field._id);
+        const existingFields = fieldsArray.filter((field: FieldWithId) => field._id);
+        const newFields = fieldsArray.filter((field: FieldWithId) => !field._id);
 
         let operations: any[] = [];
 
@@ -102,7 +111,7 @@ const InsertAndUpdateFields = async (req: Request, res: Response) => {
 
             // Get all updated fields
             updatedFields = await Field.find({
-                fieldName: { $in: fields.map((f: FieldWithId) => f.fieldName) }
+                fieldName: { $in: fieldsArray.map((f: FieldWithId) => f.fieldName) }
             });
         }
 
@@ -144,7 +153,6 @@ const UpdateField = async (req: Request, res: Response) => {
                     selector: fieldData.selector,
                     contentType: fieldData.contentType,
                     scrapeType: fieldData.scrapeType,
-                    isRequired: fieldData.isRequired
                 }
             },
             { new: true, runValidators: true }
