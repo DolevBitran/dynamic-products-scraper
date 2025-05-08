@@ -18,31 +18,12 @@ const Login = () => {
     password: '',
   });
 
-  const [passwordValidation, setPasswordValidation] = useState({
-    hasLowercase: false,
-    hasUppercase: false,
-    hasNumber: false,
-    hasSpecial: false,
-    hasMinLength: false
-  });
-
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCredentials((prev) => ({
       ...prev,
       [name]: value,
     }));
-
-    // Update password validation when password changes
-    if (name === 'password') {
-      setPasswordValidation({
-        hasLowercase: /[a-z]/.test(value),
-        hasUppercase: /[A-Z]/.test(value),
-        hasNumber: /[0-9]/.test(value),
-        hasSpecial: /[^A-Za-z0-9]/.test(value),
-        hasMinLength: value.length >= 8
-      });
-    }
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -103,41 +84,6 @@ const Login = () => {
               placeholder="••••••••"
             />
           </div>
-
-          {credentials.password.length > 0 && (
-            <div className="password-requirements">
-              <div className="requirement">
-                <div className={`requirement-icon ${passwordValidation.hasLowercase ? 'valid' : ''}`}>
-                  {passwordValidation.hasLowercase && '✓'}
-                </div>
-                <span className="requirement-text">one lowercase character</span>
-              </div>
-              <div className="requirement">
-                <div className={`requirement-icon ${passwordValidation.hasUppercase ? 'valid' : ''}`}>
-                  {passwordValidation.hasUppercase && '✓'}
-                </div>
-                <span className="requirement-text">one uppercase character</span>
-              </div>
-              <div className="requirement">
-                <div className={`requirement-icon ${passwordValidation.hasNumber ? 'valid' : ''}`}>
-                  {passwordValidation.hasNumber && '✓'}
-                </div>
-                <span className="requirement-text">one number</span>
-              </div>
-              <div className="requirement">
-                <div className={`requirement-icon ${passwordValidation.hasSpecial ? 'valid' : ''}`}>
-                  {passwordValidation.hasSpecial && '✓'}
-                </div>
-                <span className="requirement-text">one special character</span>
-              </div>
-              <div className="requirement">
-                <div className={`requirement-icon ${passwordValidation.hasMinLength ? 'valid' : ''}`}>
-                  {passwordValidation.hasMinLength && '✓'}
-                </div>
-                <span className="requirement-text">8 character minimum</span>
-              </div>
-            </div>
-          )}
 
           <button
             type="submit"
