@@ -12,12 +12,9 @@ const FieldsView = ({ onAddField }: FieldsViewProps) => {
   const error = useSelector(selectFieldsError);
 
   const handleAddField = () => {
-    if (onAddField) {
-      onAddField();
-    }
+    onAddField && onAddField();
   };
 
-  // Field editing and deletion is now handled by the FieldsTable component
 
   if (isLoading && fields.length === 0) {
     return <div className="loading-container">Loading fields...</div>;

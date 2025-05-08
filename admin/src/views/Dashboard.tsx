@@ -11,7 +11,6 @@ import StatCard from '@components/Dashboard/StatCard';
 import FieldsView from '@components/Dashboard/FieldsView';
 import ProductsView from '@components/Dashboard/ProductsView';
 import { selectUsers } from '@store/selectors/users';
-import '@styles/Dashboard.css';
 
 const Dashboard = () => {
   const dispatch = useDispatch<Dispatch>();
@@ -23,7 +22,6 @@ const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
 
   useEffect(() => {
-    // Fetch data when component mounts
     !fields?.length && dispatch.fields.fetchFields();
     !products?.length && dispatch.products.fetchProducts();
     !users?.length && dispatch.users.fetchUsers();

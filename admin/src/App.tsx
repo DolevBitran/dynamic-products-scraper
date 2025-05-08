@@ -5,6 +5,9 @@ import { store } from '@store/index'
 import type { Dispatch } from '@store/index'
 import '@styles/index.css'
 import '@styles/App.css'
+import '@styles/Dashboard.css';
+import '@styles/Modal.css';
+
 
 // Views
 import Login from '@views/Login'

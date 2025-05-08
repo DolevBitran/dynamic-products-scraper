@@ -4,9 +4,7 @@ import {
   selectProductsLoading,
   selectProductsError,
 } from '@store/selectors';
-import Button from '@components/Button/Button';
 import ProductTable from '@components/Dashboard/ProductTable';
-// Using ProductTable for rendering
 
 interface ProductsViewProps {
   onAddProduct?: () => void;
@@ -17,14 +15,6 @@ const ProductsView = ({ onAddProduct }: ProductsViewProps) => {
   const isLoading = useSelector(selectProductsLoading);
   const error = useSelector(selectProductsError);
 
-  const handleAddProduct = () => {
-    if (onAddProduct) {
-      onAddProduct();
-    }
-  };
-
-  // Note: Edit and delete functionality is now handled by the ProductTable component
-
   if (isLoading && products.length === 0) {
     return <div className="loading-container">Loading products...</div>;
   }
@@ -32,8 +22,6 @@ const ProductsView = ({ onAddProduct }: ProductsViewProps) => {
   if (error && products.length === 0) {
     return <div className="error-container">{error}</div>;
   }
-
-  // Note: Dynamic column rendering is now handled by the ProductTable component
 
   return (
     <div className="products-view">

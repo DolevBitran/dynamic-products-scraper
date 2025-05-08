@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Button from '@components/Button/Button';
 import { selectUsersState } from '@store/selectors/users';
 import UsersTable from '../components/Dashboard/UsersTable';
 import UserModal from '../components/Dashboard/UserModal';
-import '../styles/Modal.css';
+import type { Dispatch } from '@store/index';
 
 const Users: React.FC = () => {
+  const dispatch = useDispatch<Dispatch>();
   const { users, isLoading, error } = useSelector(selectUsersState);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    !users?.length && dispatch.users.fetchUsers();
+  }, [dispatch.users]);
 
   const handleAddUser = () => {
     setIsModalOpen(true);
