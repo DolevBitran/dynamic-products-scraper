@@ -41,3 +41,10 @@ export const MESSAGE_TYPES = {
     SCRAPED_DATA: 'SCRAPED_DATA',
     MANUAL_SCRAPE: 'MANUAL_SCRAPE',
 } as const;
+
+
+export const SIZE = {
+    SM: 'small',
+    MD: 'medium',
+    LG: 'large',
+} as const;

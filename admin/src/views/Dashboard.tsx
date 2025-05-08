@@ -12,6 +12,7 @@ import StatCard from '@components/Dashboard/StatCard';
 import FieldsView from '@components/Dashboard/FieldsView';
 import ProductsView from '@components/Dashboard/ProductsView';
 import { selectUsers } from '@store/selectors/users';
+import Loading from '@components/Loading/Loading';
 
 const Dashboard = () => {
   const dispatch = useDispatch<Dispatch>();
@@ -50,6 +51,10 @@ const Dashboard = () => {
 
   // Render the appropriate content based on the active section
   const renderContent = () => {
+    if (isLoading) {
+      return <Loading />;
+    }
+
     switch (activeSection) {
       case 'dashboard':
         return (
@@ -104,7 +109,7 @@ const Dashboard = () => {
 
       case 'products':
         return <ProductsView onAddProduct={handleAddProduct} />;
-        
+
       case 'websites':
         return <div className="p-4">
           <h2 className="text-xl font-semibold">Websites Management</h2>

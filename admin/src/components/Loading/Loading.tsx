@@ -1,10 +1,13 @@
+import { SIZE } from "@utils/constants";
 
+interface iLoadingProps {
+    size?: typeof SIZE[keyof typeof SIZE];
+}
 
-const Loading = () => {
+const Loading = ({ size = SIZE.SM }: iLoadingProps) => {
+
     return (
-        <div className="flex-1 flex items-center justify-center">
-            <div className="text-gray-500">Loading...</div>
-        </div>
+        <span className={`loader ${size}`}></span>
     );
 };
 

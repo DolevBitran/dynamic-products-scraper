@@ -32,3 +32,10 @@ export const PRODUCT_STATUS = {
     PENDING: 'pending',
     INACTIVE: 'inactive',
 } as const;
+
+
+export const SIZE = {
+    SM: 'small',
+    MD: 'medium',
+    LG: 'large',
+} as const;
