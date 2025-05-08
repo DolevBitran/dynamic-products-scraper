@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import Button from '@components/Button/Button';
 import { selectFields } from '@store/selectors';
 import type { Dispatch } from '@store/index';
 import type { Product as ProductType } from '@utils/types';
 import ProductTableRow from './ProductTableRow';
+import '@styles/TableButtons.css';
 
 
 
@@ -121,12 +121,12 @@ const ProductTable: React.FC<ProductTableProps> = ({ products, onAddProduct }) =
           <span>Products</span>
         </div>
         <div className="table-actions">
-          <Button
-            className="bg-blue-500 text-white hover:bg-blue-600"
+          <button
+            className="table-action-button table-action-button-primary"
             onClick={onAddProduct}
           >
             Add Product
-          </Button>
+          </button>
         </div>
       </div>
 

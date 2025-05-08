@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Button from '@components/Button/Button';
 import UserModal from './UserModal';
 import type { Dispatch } from '@store/index';
 import type { User, Website as UserWebsite } from '@store/models/users';
 import { WebsiteStatus } from '@store/models/websites';
 import { selectUser } from '@store/selectors';
+import '@styles/TableButtons.css';
 
 // Using User interface imported from store/models/users
 
@@ -87,6 +87,18 @@ const UsersTable: React.FC<UsersTableProps> = ({ users }) => {
         <div className="table-title">
           <span className="menu-item-icon">👥</span>
           <span>Users</span>
+        </div>
+        <div className="table-actions">
+          <button
+            className="table-action-button table-action-button-primary"
+            onClick={() => {
+              setSelectedUser(null);
+              setModalMode('create');
+              setIsModalOpen(true);
+            }}
+          >
+            Add User
+          </button>
         </div>
       </div>
 
@@ -190,22 +202,19 @@ const UsersTable: React.FC<UsersTableProps> = ({ users }) => {
               </td>
               <td>{user.createdAt}</td>
               <td>
-                <div className="flex gap-2">
-                  <Button
+                <div className="table-actions-container">
+                  <button
                     onClick={() => handleEditUser(user)}
-                    variant="default"
-                    size="sm"
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                    className="table-action-button table-action-button-primary"
                   >
                     Edit
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     onClick={() => handleDeleteUser(user.id)}
-                    variant="destructive"
-                    size="sm"
+                    className="table-action-button table-action-button-danger"
                   >
                     Delete
-                  </Button>
+                  </button>
                 </div>
               </td>
             </tr>

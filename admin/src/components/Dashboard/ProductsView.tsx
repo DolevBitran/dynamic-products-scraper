@@ -25,9 +25,6 @@ const ProductsView = ({ onAddProduct }: ProductsViewProps) => {
 
   return (
     <div className="products-view">
-      <div className="products-header">
-        <h2 className="text-xl font-semibold">Products</h2>
-      </div>
 
       {!products || products.length === 0 ? (
         <div className="no-products">

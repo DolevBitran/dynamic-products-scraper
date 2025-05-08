@@ -35,10 +35,6 @@ const Users: React.FC = () => {
 
   return (
     <div className="users-view">
-      <div className="users-header">
-        <h2 className="text-xl font-semibold">Users</h2>
-        <Button onClick={handleAddUser} variant="default">Add New User</Button>
-      </div>
 
       {!users || users.length === 0 ? (
         <div className="no-users">

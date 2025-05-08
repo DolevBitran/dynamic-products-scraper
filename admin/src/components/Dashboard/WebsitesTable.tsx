@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Button from '@components/Button/Button';
 import WebsiteModal from './WebsiteModal';
 import type { Dispatch } from '@store/index';
 import type { Website } from '@store/models/websites';
@@ -8,6 +7,7 @@ import type { User, Website as UserWebsite } from '@store/models/users';
 import { selectUsers } from '@store/selectors/users';
 import { selectProductCountByWebsite } from '@store/selectors/products';
 import { WebsiteStatus } from '@store/models/websites';
+import '@styles/TableButtons.css';
 
 interface WebsitesTableProps {
   websites: Website[];
@@ -137,12 +137,12 @@ const WebsitesTable: React.FC<WebsitesTableProps> = ({ websites }) => {
 
   return (
     <div className="table-section">
-      {selectedWebsite && (
+      {isModalOpen && (
         <WebsiteModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          mode="edit"
-          website={selectedWebsite}
+          mode={selectedWebsite ? 'edit' : 'create'}
+          website={selectedWebsite || undefined}
         />
       )}
 
@@ -150,6 +150,17 @@ const WebsitesTable: React.FC<WebsitesTableProps> = ({ websites }) => {
         <div className="table-title">
           <span className="menu-item-icon">🌐</span>
           <span>Websites</span>
+        </div>
+        <div className="table-actions">
+          <button
+            className="table-action-button table-action-button-primary"
+            onClick={() => {
+              setSelectedWebsite(null);
+              setIsModalOpen(true);
+            }}
+          >
+            Add Website
+          </button>
         </div>
       </div>
 
@@ -286,32 +297,27 @@ const WebsitesTable: React.FC<WebsitesTableProps> = ({ websites }) => {
                 </td>
                 <td>{new Date(website.createdAt).toLocaleDateString()}</td>
                 <td>
-                  <div className="flex gap-2">
-                    <Button
+                  <div className="table-actions-container">
+                    <button
                       onClick={() => handleStatusToggle(website)}
-                      variant="default"
-                      size="sm"
-                      className={website.status === WebsiteStatus.ACTIVE
-                        ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                        : 'bg-green-500 hover:bg-green-600 text-white'}
+                      className={`table-action-button ${website.status === WebsiteStatus.ACTIVE 
+                        ? 'table-action-button-warning' 
+                        : 'table-action-button-success'}`}
                     >
                       {website.status === WebsiteStatus.ACTIVE ? 'Deactivate' : 'Activate'}
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                       onClick={() => handleEdit(website)}
-                      variant="default"
-                      size="sm"
-                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                      className="table-action-button table-action-button-primary"
                     >
                       Edit
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                       onClick={() => handleDelete(website.id)}
-                      variant="destructive"
-                      size="sm"
+                      className="table-action-button table-action-button-danger"
                     >
                       Delete
-                    </Button>
+                    </button>
                   </div>
                 </td>
               </tr>

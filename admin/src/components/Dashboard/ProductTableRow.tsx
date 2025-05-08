@@ -1,6 +1,6 @@
 import React from 'react';
-import Button from '@components/Button/Button';
 import type { Product as ProductType } from '@utils/types';
+import '@styles/TableButtons.css';
 
 interface ProductTableRowProps {
   product: ProductType;
@@ -74,24 +74,21 @@ const ProductTableRow: React.FC<ProductTableRowProps> = ({
         )}
       </td>
       <td>
-        <div className="flex gap-2">
+        <div className="table-actions-container">
           {hasChanged ? (
-            <Button
+            <button
               onClick={() => onSave(product.id)}
-              variant="default"
-              size="sm"
-              className="bg-green-500 hover:bg-green-600 text-white"
+              className="table-action-button table-action-button-success"
             >
               Save
-            </Button>
+            </button>
           ) : null}
-          <Button
+          <button
             onClick={handleDeleteClick}
-            variant="destructive"
-            size="sm"
+            className="table-action-button table-action-button-danger"
           >
             Delete
-          </Button>
+          </button>
         </div>
       </td>
     </tr>

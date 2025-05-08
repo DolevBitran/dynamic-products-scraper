@@ -1,6 +1,6 @@
 import React from 'react';
-import Button from '@components/Button/Button';
 import type { Field } from '@utils/types';
+import '@styles/TableButtons.css';
 
 interface FieldsTableRowProps {
   field: Field;
@@ -71,24 +71,21 @@ const FieldsTableRow: React.FC<FieldsTableRowProps> = ({
         />
       </td> */}
       <td>
-        <div className="flex gap-2">
+        <div className="table-actions-container">
           {hasChanged ? (
-            <Button
+            <button
               onClick={() => onSave(field.id)}
-              variant="default"
-              size="sm"
-              className="bg-green-500 hover:bg-green-600 text-white"
+              className="table-action-button table-action-button-success"
             >
               Save
-            </Button>
+            </button>
           ) : null}
-          <Button
+          <button
             onClick={() => onDelete(field.id)}
-            variant="destructive"
-            size="sm"
+            className="table-action-button table-action-button-danger"
           >
             Delete
-          </Button>
+          </button>
         </div>
       </td>
     </tr>

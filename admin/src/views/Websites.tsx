@@ -40,10 +40,6 @@ const Websites: React.FC = () => {
 
   return (
     <div className="websites-view">
-      <div className="websites-header">
-        <h2 className="text-xl font-semibold">Websites</h2>
-        <Button onClick={handleAddWebsite} variant="default">Add New Website</Button>
-      </div>
 
       {!websites || websites.length === 0 ? (
         <div className="no-websites">

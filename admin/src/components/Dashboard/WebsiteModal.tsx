@@ -3,9 +3,7 @@ import { useDispatch } from 'react-redux';
 import type { Dispatch } from '@store/index';
 import { WebsiteStatus } from '@store/models/websites';
 import type { Website } from '@store/models/websites';
-import Input from '@components/Input/Input';
-import Label from '@components/Label/Label';
-import Button from '@components/Button/Button';
+import '@styles/UserModal.css';
 
 interface WebsiteModalProps {
   isOpen: boolean;
@@ -95,73 +93,81 @@ const WebsiteModal: React.FC<WebsiteModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4">
+    <div className="user-modal-overlay">
+      <div className="user-modal-container">
+        <h2 className="user-modal-title">
           {mode === 'create' ? 'Add New Website' : 'Edit Website'}
         </h2>
+        <p className="user-modal-subtitle">
+          {mode === 'create'
+            ? 'Enter the details for the new website'
+            : 'Update the website information'}
+        </p>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="user-modal-error">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <Label htmlFor="name">Website Name</Label>
-            <Input
+        <form className="user-modal-form" onSubmit={handleSubmit}>
+          <div className="user-form-group">
+            <label htmlFor="name" className="user-form-label">Website Name</label>
+            <input
+              type="text"
               id="name"
               name="name"
               value={formData.name}
               onChange={handleChange}
               required
               placeholder="Enter website name"
+              className="user-form-input"
             />
           </div>
 
-          <div className="mb-4">
-            <Label htmlFor="url">Website URL</Label>
-            <Input
+          <div className="user-form-group">
+            <label htmlFor="url" className="user-form-label">Website URL</label>
+            <input
+              type="text"
               id="url"
               name="url"
               value={formData.url}
               onChange={handleChange}
               required
               placeholder="Enter website URL"
+              className="user-form-input"
             />
           </div>
 
-          <div className="mb-4">
-            <Label htmlFor="status">Status</Label>
+          <div className="user-form-group">
+            <label htmlFor="status" className="user-form-label">Status</label>
             <select
               id="status"
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="user-form-select"
             >
               <option value={WebsiteStatus.ACTIVE}>Active</option>
               <option value={WebsiteStatus.INACTIVE}>Inactive</option>
             </select>
           </div>
 
-          <div className="flex justify-end space-x-2 mt-6">
-            <Button
-              type="button"
-              onClick={onClose}
-              variant="outline"
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
+          <div className="user-modal-buttons">
+            <button
               type="submit"
-              variant="default"
               disabled={isSubmitting}
+              className="user-modal-button"
             >
               {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create' : 'Update'}
-            </Button>
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="user-modal-button-secondary"
+            >
+              Cancel
+            </button>
           </div>
         </form>
       </div>

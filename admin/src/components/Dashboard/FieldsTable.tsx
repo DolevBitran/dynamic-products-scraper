@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import Button from '@components/Button/Button';
 import type { Dispatch } from '@store/index';
 import type { Field } from '@utils/types';
 import FieldsTableRow from './FieldsTableRow';
+import '@styles/TableButtons.css';
 
 interface FieldsTableProps {
   fields: Field[];
@@ -106,12 +106,12 @@ const FieldsTable: React.FC<FieldsTableProps> = ({ fields, onAddField }) => {
           <span>Fields</span>
         </div>
         <div className="table-actions">
-          <Button
-            className="bg-blue-500 text-white hover:bg-blue-600"
+          <button
+            className="table-action-button table-action-button-primary"
             onClick={onAddField}
           >
             Add Field
-          </Button>
+          </button>
         </div>
       </div>
 
