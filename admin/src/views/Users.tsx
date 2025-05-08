@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from '@components/Button/Button';
 import { selectUsersState } from '@store/selectors/users';
-import UsersTable from '../components/Dashboard/UsersTable';
-import UserModal from '../components/Dashboard/UserModal';
+import UsersTable from '@components/Dashboard/UsersTable';
+import UserModal from '@components/Dashboard/UserModal';
 import type { Dispatch } from '@store/index';
+import Loading from '@components/Loading/Loading';
 
 const Users: React.FC = () => {
   const dispatch = useDispatch<Dispatch>();
@@ -24,12 +25,13 @@ const Users: React.FC = () => {
   };
 
   if (isLoading && users.length === 0) {
-    return <div className="loading-container">Loading users...</div>;
+    return <Loading />
   }
 
   if (error && users.length === 0) {
     return <div className="error-container">{error}</div>;
   }
+
 
   return (
     <div className="users-view">

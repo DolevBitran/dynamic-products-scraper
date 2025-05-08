@@ -7,7 +7,9 @@ interface iLoadingProps {
 const Loading = ({ size = SIZE.SM }: iLoadingProps) => {
 
     return (
-        <span className={`loader ${size}`}></span>
+        <div className='loading-container'>
+            <span className={`loader ${size}`} />
+        </div>
     );
 };
 

@@ -6,6 +6,7 @@ import { selectWebsitesState } from '@store/selectors/websites';
 import WebsitesTable from '@components/Dashboard/WebsitesTable';
 import WebsiteModal from '@components/Dashboard/WebsiteModal';
 import { selectUsers } from '@store/selectors/users';
+import Loading from '@components/Loading/Loading';
 
 const Websites: React.FC = () => {
   const dispatch = useDispatch<Dispatch>();
@@ -27,7 +28,7 @@ const Websites: React.FC = () => {
   };
 
   if (isLoading && websites.length === 0) {
-    return <div className="loading-container">Loading websites...</div>;
+    return <Loading />
   }
 
   if (error && websites.length === 0) {

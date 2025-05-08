@@ -13,7 +13,7 @@ const Register = () => {
   const navigate = useNavigate();
   const isLoading = useSelector(selectIsLoading);
   const error = useSelector(selectError);
-  
+
   const [credentials, setCredentials] = useState({
     name: '',
     email: '',
@@ -29,7 +29,7 @@ const Register = () => {
       ...prev,
       [name]: value,
     }));
-    
+
     // Clear validation error when user types
     if (validationError) {
       setValidationError('');
@@ -38,13 +38,13 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate passwords match
     if (credentials.password !== credentials.confirmPassword) {
       setValidationError('Passwords do not match');
       return;
     }
-    
+
     const result = await dispatch.auth.register(credentials);
     if (result) {
       navigate('/');
@@ -52,7 +52,7 @@ const Register = () => {
   };
 
   if (isLoading) {
-    return <Loading />;
+    return <Loading />
   }
 
   return (
@@ -61,13 +61,13 @@ const Register = () => {
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-gray-900">Create your account</h2>
         </div>
-        
+
         {(error || validationError) && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             {error || validationError}
           </div>
         )}
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
@@ -85,7 +85,7 @@ const Register = () => {
                 className="mt-1"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
@@ -101,7 +101,7 @@ const Register = () => {
                 className="mt-1"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
@@ -117,7 +117,7 @@ const Register = () => {
                 className="mt-1"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
                 Confirm Password
@@ -144,7 +144,7 @@ const Register = () => {
               Register
             </Button>
           </div>
-          
+
           <div className="text-center text-sm">
             <span className="text-gray-600">Already have an account? </span>
             <Link to="/login" className="text-primary hover:underline">

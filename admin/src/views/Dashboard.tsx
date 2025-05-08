@@ -41,20 +41,12 @@ const Dashboard = () => {
     // Implement field addition functionality
   };
 
-  if (isLoading && !user) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    return <div>User not found</div>;
+  if (isLoading || !user) {
+    return <Loading />
   }
 
   // Render the appropriate content based on the active section
   const renderContent = () => {
-    if (isLoading) {
-      return <Loading />;
-    }
-
     switch (activeSection) {
       case 'dashboard':
         return (
