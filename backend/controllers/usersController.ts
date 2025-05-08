@@ -12,7 +12,7 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
       id: user._id,
       name: user.name || 'Unnamed User',
       email: user.email,
-      role: `${user.role}${user._id.toString() === req.user?.userId ? '(Current User)' : ''}`,
+      role: user.role,
       websites: user.websites,
       createdAt: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : undefined
     }));
