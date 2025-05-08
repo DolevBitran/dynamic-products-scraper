@@ -100,11 +100,13 @@
 @layer base {
   * {
     border-color: hsl(var(--border));
+    font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   }
 }
 
