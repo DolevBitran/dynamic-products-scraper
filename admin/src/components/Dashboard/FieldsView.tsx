@@ -2,18 +2,12 @@ import { useSelector } from 'react-redux';
 import { selectFields, selectFieldsLoading, selectFieldsError } from '@store/selectors';
 import FieldsTable from './FieldsTable';
 
-interface FieldsViewProps {
-  onAddField?: () => void;
-}
+interface FieldsViewProps {}
 
-const FieldsView = ({ onAddField }: FieldsViewProps) => {
+const FieldsView: React.FC<FieldsViewProps> = () => {
   const fields = useSelector(selectFields);
   const isLoading = useSelector(selectFieldsLoading);
   const error = useSelector(selectFieldsError);
-
-  const handleAddField = () => {
-    onAddField && onAddField();
-  };
 
 
   if (isLoading && fields.length === 0) {
@@ -33,7 +27,6 @@ const FieldsView = ({ onAddField }: FieldsViewProps) => {
       ) : (
         <FieldsTable
           fields={fields}
-          onAddField={handleAddField}
         />
       )}
     </div>

@@ -3,17 +3,20 @@ import { useDispatch } from 'react-redux';
 import type { Dispatch } from '@store/index';
 import type { Field } from '@utils/types';
 import FieldsTableRow from './FieldsTableRow';
+import FieldModal from './FieldModal';
 import '@styles/TableButtons.css';
 
 interface FieldsTableProps {
   fields: Field[];
-  onAddField?: () => void;
 }
 
-const FieldsTable: React.FC<FieldsTableProps> = ({ fields, onAddField }) => {
+const FieldsTable: React.FC<FieldsTableProps> = ({ fields }) => {
   const dispatch = useDispatch<Dispatch>();
   const [originalFields, setOriginalFields] = useState<Record<string, Field>>({});
   const [currentFields, setCurrentFields] = useState<Record<string, Field>>({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedField, setSelectedField] = useState<Field | null>(null);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
 
   // Initialize fields data when component mounts or fields change
   useMemo(() => {
@@ -35,13 +38,6 @@ const FieldsTable: React.FC<FieldsTableProps> = ({ fields, onAddField }) => {
     setCurrentFields(prev => {
       // Create a deep copy of the previous field to avoid reference issues
       const updatedField = JSON.parse(JSON.stringify(prev[fieldId]));
-      
-      // Handle boolean values converted from string
-      if (fieldName === 'isRequired') {
-        updatedField[fieldName] = content === 'true';
-      } else {
-        updatedField[fieldName] = content;
-      }
       
       // Log the update for debugging
       console.log(`Updating field ${fieldId}, ${fieldName} to:`, content);
@@ -98,8 +94,34 @@ const FieldsTable: React.FC<FieldsTableProps> = ({ fields, onAddField }) => {
     dispatch.fields.deleteField(id);
   };
 
+  const handleEditField = (field: Field) => {
+    setSelectedField(field);
+    setModalMode('edit');
+    setIsModalOpen(true);
+  };
+
+  const handleAddNewField = () => {
+    setSelectedField(null);
+    setModalMode('create');
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedField(null);
+  };
+
   return (
     <div className="table-section">
+      {isModalOpen && (
+        <FieldModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          mode={modalMode}
+          field={selectedField || undefined}
+        />
+      )}
+
       <div className="table-header">
         <div className="table-title">
           <span className="menu-item-icon">🔧</span>
@@ -108,7 +130,7 @@ const FieldsTable: React.FC<FieldsTableProps> = ({ fields, onAddField }) => {
         <div className="table-actions">
           <button
             className="table-action-button table-action-button-primary"
-            onClick={onAddField}
+            onClick={handleAddNewField}
           >
             Add Field
           </button>
@@ -141,6 +163,7 @@ const FieldsTable: React.FC<FieldsTableProps> = ({ fields, onAddField }) => {
                 onContentChange={handleContentChange}
                 onSave={handleSaveField}
                 onDelete={handleDeleteField}
+                onEdit={() => handleEditField(currentField)}
               />
             );
           })}

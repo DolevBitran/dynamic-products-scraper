@@ -29,9 +29,8 @@ export interface Field {
     id: string;
     name: string;
     selector: string;
-    contentType: 'text' | 'image' | 'price' | 'link';
+    contentType: 'text' | 'image' | 'link';
     scrapeType: 'product' | 'category';
-    isRequired: boolean;
     createdAt?: string;
     updatedAt?: string;
     [key: string]: any; // Allow dynamic property access

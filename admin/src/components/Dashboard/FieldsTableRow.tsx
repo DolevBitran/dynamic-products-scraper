@@ -9,6 +9,7 @@ interface FieldsTableRowProps {
   onContentChange: (fieldId: string, fieldName: string, content: string) => void;
   onSave: (fieldId: string) => void;
   onDelete: (fieldId: string) => void;
+  onEdit: () => void;
 }
 
 const FieldsTableRow: React.FC<FieldsTableRowProps> = ({
@@ -16,7 +17,8 @@ const FieldsTableRow: React.FC<FieldsTableRowProps> = ({
   hasChanged,
   onContentChange,
   onSave,
-  onDelete
+  onDelete,
+  onEdit
 }) => {
   return (
     <tr>
@@ -63,13 +65,7 @@ const FieldsTableRow: React.FC<FieldsTableRowProps> = ({
           <option value="category">Category</option>
         </select>
       </td>
-      {/* <td>
-        <input
-          type="checkbox"
-          checked={field.isRequired}
-          onChange={(e) => onContentChange(field.id, 'isRequired', e.target.checked.toString())}
-        />
-      </td> */}
+
       <td>
         <div className="table-actions-container">
           {hasChanged ? (
@@ -79,7 +75,14 @@ const FieldsTableRow: React.FC<FieldsTableRowProps> = ({
             >
               Save
             </button>
-          ) : null}
+          ) : (
+            <button
+              onClick={onEdit}
+              className="table-action-button table-action-button-primary"
+            >
+              Edit
+            </button>
+          )}
           <button
             onClick={() => onDelete(field.id)}
             className="table-action-button table-action-button-danger"
