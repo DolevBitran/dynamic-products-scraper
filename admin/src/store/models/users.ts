@@ -1,5 +1,6 @@
 import { createModel } from '@rematch/core';
 import type { RootModel } from '.';
+import type { ROLES } from '@utils/constants';
 import api from '@service/api';
 
 export interface User {
@@ -7,7 +8,7 @@ export interface User {
   userId?: string;
   name: string;
   email: string;
-  role?: string;
+  role?: typeof ROLES[keyof typeof ROLES];
   createdAt?: string;
   websites?: Website[]; // Array of website IDs
 }
@@ -26,7 +27,7 @@ export interface CreateUserData {
   name?: string;
   email: string;
   password: string;
-  role?: string;
+  role?: typeof ROLES[keyof typeof ROLES];
 }
 
 export interface UsersState {
@@ -94,7 +95,7 @@ export const users = createModel<RootModel>()({
         const response = await api.post('/auth/register', userData);
         console.log({ newUser: response.data.user })
         if (response.data.success) {
-          dispatch.users.setUser(response.data.user);
+          dispatch.users.addUser(response.data.user);
           return { success: true, user: response.data.user };
         } else {
           dispatch.users.setError(response.data.message || 'Failed to create user');

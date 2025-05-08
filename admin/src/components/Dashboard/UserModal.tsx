@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import Button from '@components/Button/Button';
 import type { Dispatch } from '@store/index';
 import type { CreateUserData, User } from '@store/models/users';
+import { ROLES } from '@utils/constants';
 
 interface UserModalProps {
   isOpen: boolean;
@@ -13,16 +14,16 @@ interface UserModalProps {
 
 const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'create' }) => {
   const dispatch = useDispatch<Dispatch>();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateUserData & { confirmPassword: string }>({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'User'
+    role: ROLES.USER // Using lowercase to match the backend enum
   });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Initialize form data when user prop changes or modal opens
   useEffect(() => {
     if (user && mode === 'edit') {
@@ -31,7 +32,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
         email: user.email || '',
         password: '',
         confirmPassword: '',
-        role: user.role || 'User'
+        role: user.role || ROLES.USER
       });
     } else if (mode === 'create') {
       // Reset form when creating a new user
@@ -40,10 +41,10 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
         email: '',
         password: '',
         confirmPassword: '',
-        role: 'User'
+        role: ROLES.USER // Using lowercase to match the backend enum
       });
     }
-    
+
     // Clear any previous errors
     setError(null);
   }, [user, mode, isOpen]);
@@ -59,28 +60,28 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
     // Basic validation
     if (!formData.email) {
       setError('Email is required');
       return;
     }
-    
+
     // For create mode, password is required
     if (mode === 'create' && !formData.password) {
       setError('Password is required');
       return;
     }
-    
+
     // Password confirmation check (only if password is provided)
     if (formData.password && formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
+
     try {
       setIsSubmitting(true);
-      
+
       if (mode === 'create') {
         // Call the API to create a new user
         const userData: CreateUserData = {
@@ -89,9 +90,9 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
           password: formData.password,
           role: formData.role
         };
-        
+
         const result = await dispatch.users.createUser(userData);
-        
+
         if (result.success) {
           // Reset form and close modal on success
           setFormData({
@@ -99,7 +100,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
             email: '',
             password: '',
             confirmPassword: '',
-            role: 'User'
+            role: ROLES.USER
           });
           onClose();
         } else {
@@ -113,14 +114,14 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
           email: formData.email,
           role: formData.role
         };
-        
+
         // Only include password if it was provided
         if (formData.password) {
           (updateData as any).password = formData.password;
         }
-        
+
         const result: any = await dispatch.users.updateUser(updateData as User);
-        
+
         if (result && result.success) {
           onClose();
         } else {
@@ -143,14 +144,14 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
           <h2>{mode === 'create' ? 'Add New User' : 'Edit User'}</h2>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
-        
+
         <div className="modal-body">
           {error && (
             <div className="error-message">
               <strong>Error:</strong> {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="name">Name</label>
@@ -164,7 +165,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
                 className="form-input"
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="email">Email *</label>
               <input
@@ -178,7 +179,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
                 className="form-input"
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="password">Password *</label>
               <input
@@ -192,7 +193,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
                 className="form-input"
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="confirmPassword">Confirm Password *</label>
               <input
@@ -206,7 +207,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
                 className="form-input"
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="role">Role</label>
               <select
@@ -216,11 +217,11 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
                 onChange={handleChange}
                 className="form-input"
               >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
+                <option value={ROLES.USER}>User</option>
+                <option value={ROLES.ADMIN}>Admin</option>
               </select>
             </div>
-            
+
             <div className="form-actions">
               <Button
                 type="button"
@@ -235,8 +236,8 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, mode = 'cr
                 disabled={isSubmitting}
                 className="bg-blue-500 text-white hover:bg-blue-600"
               >
-                {isSubmitting 
-                  ? (mode === 'create' ? 'Creating...' : 'Updating...') 
+                {isSubmitting
+                  ? (mode === 'create' ? 'Creating...' : 'Updating...')
                   : (mode === 'create' ? 'Create User' : 'Update User')}
               </Button>
             </div>
