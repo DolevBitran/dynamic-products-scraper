@@ -19,7 +19,7 @@ const Dashboard = () => {
   const user = useSelector(selectUser);
   const users = useSelector(selectUsers);
   const isLoading = useSelector(selectIsLoading);
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeSection, _setActiveSection] = useState('dashboard');
 
   useEffect(() => {
     !fields?.length && dispatch.fields.fetchFields();
